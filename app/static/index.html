@@ -368,6 +368,66 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       MODAL: ADHD-Friendly All Tasks Completed Celebration
+       ======================================================================== -->
+  <div class="modal-backdrop hidden" id="modal-session-completed">
+    <div class="modal-sheet" style="max-width: 560px;">
+      <div class="modal-sheet-header" style="border-bottom: none; padding-bottom: 0;">
+        <div class="completion-pill-badge">✨ Session Goal Achieved</div>
+        <button class="btn btn-secondary" id="btn-close-completed-modal" style="padding: 4px 10px;">✕</button>
+      </div>
+
+      <div class="modal-sheet-body" style="text-align: center; padding: 20px 28px 24px;">
+        <div class="completion-hero-icon">🌿</div>
+        <h2 class="completion-title">You Finished All Steps!</h2>
+        <p class="completion-subtext">
+          No cognitive freeze. No tab-switching rabbit holes. You stayed in your guided flow and solved every atomic question one piece at a time.
+        </p>
+
+        <!-- ADHD Dopamine Reward Metrics Grid -->
+        <div class="completion-stats-grid">
+          <div class="completion-stat-card">
+            <div class="completion-stat-num" id="comp-total-steps">4 / 4</div>
+            <div class="completion-stat-label">Problems Solved</div>
+          </div>
+          <div class="completion-stat-card">
+            <div class="completion-stat-num" id="comp-scratchpad-words">0</div>
+            <div class="completion-stat-label">Words &amp; Formulas</div>
+          </div>
+          <div class="completion-stat-card">
+            <div class="completion-stat-num" id="comp-parked-thoughts">0</div>
+            <div class="completion-stat-label">Shielded Distractions</div>
+          </div>
+        </div>
+
+        <!-- Working Memory Closure Notice -->
+        <div class="completion-closure-card" id="completion-closure-card">
+          <div style="font-weight: 600; font-size: 13px; color: var(--accent-sage); margin-bottom: 4px;">
+            🛡️ Working Memory Status: 100% Cleared
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;" id="comp-drawer-status-note">
+            Your assignment is finished. Any intrusive thoughts you parked in the Later Drawer are safely waiting for whenever you want to see them.
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-sheet-footer" style="justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <button class="btn btn-secondary" id="btn-comp-review-steps">
+          🔍 Review Solution Steps
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" id="btn-comp-new-session">
+            🌱 New Session
+          </button>
+          <button class="btn btn-primary" id="btn-comp-export">
+            📥 Export Solution (.md)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop hidden" id="modal-later-drawer">
     <div class="modal-sheet" style="max-width: 680px;">
       <div class="modal-sheet-header">

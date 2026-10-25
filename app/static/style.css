@@ -1661,4 +1661,92 @@ button:disabled {
   }
 }
 
+/* ==========================================================================
+   ADHD-Friendly All Tasks Completed Celebration Styles
+   ========================================================================== */
+.completion-pill-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-sage-soft);
+  color: var(--accent-sage);
+  border: 1px solid rgba(47, 89, 68, 0.25);
+}
+
+.completion-hero-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+  animation: gentle-bob 3s ease-in-out infinite alternate;
+}
+
+@keyframes gentle-bob {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+.completion-title {
+  font-family: var(--font-serif);
+  font-size: clamp(24px, 3.5vw, 32px);
+  font-weight: 500;
+  color: var(--text-ink);
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+
+.completion-subtext {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 440px;
+  margin: 0 auto 20px;
+}
+
+.completion-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.completion-stat-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 14px 10px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.completion-stat-num {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-ink);
+  margin-bottom: 4px;
+}
+
+.completion-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.completion-closure-card {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  .completion-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+
 

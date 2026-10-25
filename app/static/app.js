@@ -164,6 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSkipBreak = document.getElementById('btn-skip-break');
   const btnExtendStudy = document.getElementById('btn-extend-study');
 
+  // ADHD-Friendly All Tasks Completed Celebration Modal
+  const modalSessionCompleted = document.getElementById('modal-session-completed');
+  const btnCloseCompletedModal = document.getElementById('btn-close-completed-modal');
+  const compTotalSteps = document.getElementById('comp-total-steps');
+  const compScratchpadWords = document.getElementById('comp-scratchpad-words');
+  const compParkedThoughts = document.getElementById('comp-parked-thoughts');
+  const compDrawerStatusNote = document.getElementById('comp-drawer-status-note');
+  const btnCompReviewSteps = document.getElementById('btn-comp-review-steps');
+  const btnCompNewSession = document.getElementById('btn-comp-new-session');
+  const btnCompExport = document.getElementById('btn-comp-export');
+
   // Study Timer State
   let studyTimerInterval = null;
   let studyTimerSeconds = 25 * 60; // 25 min default focus sprint
@@ -602,7 +613,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnPrevQuestion.disabled = (state.currentIndex === 0);
     btnNextQuestion.disabled = (state.currentIndex === total - 1);
 
-    if (state.completedIds.has(qId)) {
+    if (state.completedIds.size === total) {
+      btnMarkCompleted.textContent = "🎉 All Steps Complete!";
+      btnMarkCompleted.style.opacity = '1';
+    } else if (state.completedIds.has(qId)) {
       btnMarkCompleted.textContent = "✓ Completed";
       btnMarkCompleted.style.opacity = '0.7';
     } else {
@@ -639,15 +653,89 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentQ = state.chunks[state.currentIndex];
     const qId = currentQ.id || `q_${state.currentIndex + 1}`;
     state.completedIds.add(qId);
+    const total = state.chunks.length;
 
-    if (state.currentIndex < state.chunks.length - 1) {
+    // If all tasks are completed, celebrate with ADHD-friendly completion modal!
+    if (state.completedIds.size === total) {
+      renderCurrentQuestion();
+      saveBreadcrumbCheckpoint();
+      showSessionCompletedModal();
+      return;
+    }
+
+    if (state.currentIndex < total - 1) {
       state.currentIndex++;
-    } else {
-      btnMarkCompleted.textContent = "✓ All Questions Completed!";
     }
     renderCurrentQuestion();
     saveBreadcrumbCheckpoint();
   });
+
+  // --------------------------------------------------------------------------
+  // ADHD-Friendly Session Completed Celebration Handler
+  // --------------------------------------------------------------------------
+  function showSessionCompletedModal() {
+    if (!modalSessionCompleted) return;
+    const total = state.chunks ? state.chunks.length : 1;
+    const completed = state.completedIds.size;
+
+    // Calculate total word count in scratchpad answers
+    let totalWords = 0;
+    if (state.answers) {
+      Object.values(state.answers).forEach(ans => {
+        if (ans && typeof ans === 'string') {
+          const words = ans.trim().split(/\s+/).filter(w => w.length > 0);
+          totalWords += words.length;
+        }
+      });
+    }
+
+    const parkedCount = state.laterDrawer ? state.laterDrawer.length : 0;
+    const unresolved = state.laterDrawer ? state.laterDrawer.filter(i => i.status !== 'completed').length : 0;
+
+    if (compTotalSteps) compTotalSteps.textContent = `${completed} / ${total}`;
+    if (compScratchpadWords) compScratchpadWords.textContent = `${totalWords} words`;
+    if (compParkedThoughts) compParkedThoughts.textContent = `${parkedCount} thoughts`;
+
+    if (compDrawerStatusNote) {
+      if (unresolved > 0) {
+        compDrawerStatusNote.textContent = `You safely shielded your working memory from ${parkedCount} distractions (${unresolved} remain parked in your Later Drawer for whenever you're ready). Zero lost focus.`;
+      } else {
+        compDrawerStatusNote.textContent = `Your assignment is 100% finished and your Later Drawer is clear. Your working memory is completely at peace!`;
+      }
+    }
+
+    // Pause study timer
+    pauseStudyTimer();
+
+    modalSessionCompleted.classList.remove('hidden');
+    showNotice("🎉 Fantastic focus! All assignment steps completed.", "info");
+  }
+
+  if (btnCloseCompletedModal) {
+    btnCloseCompletedModal.addEventListener('click', () => {
+      modalSessionCompleted.classList.add('hidden');
+    });
+  }
+
+  if (btnCompReviewSteps) {
+    btnCompReviewSteps.addEventListener('click', () => {
+      modalSessionCompleted.classList.add('hidden');
+    });
+  }
+
+  if (btnCompExport) {
+    btnCompExport.addEventListener('click', () => {
+      modalSessionCompleted.classList.add('hidden');
+      if (btnFooterExport) btnFooterExport.click();
+    });
+  }
+
+  if (btnCompNewSession) {
+    btnCompNewSession.addEventListener('click', () => {
+      modalSessionCompleted.classList.add('hidden');
+      if (btnCatchallToggle) btnCatchallToggle.click();
+    });
+  }
 
   // Scratchpad Autosave & Word Count
   function saveCurrentScratchpad() {

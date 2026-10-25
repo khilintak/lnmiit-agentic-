@@ -4,6 +4,8 @@ description: "AI-guided single-window study and task execution agent designed fo
 version: 1.0.0
 authors:
   - Khilin Tak
+  - Murat Mahnot
+  - Dhruv Pankaj Samariya
 repository: https://github.com/khilintak/lnmiit-agentic-
 tags:
   - adhd-support
