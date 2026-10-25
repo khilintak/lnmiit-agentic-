@@ -37,18 +37,20 @@ class FocusMateAgent:
         if not raw_input:
             return {"immediate_study": [], "later_drawer": []}
 
-        # If local Ollama LLM is available, use generative classification
+        # If local Ollama LLM is available, use generative classification with agentic reasoning
         if self.llm.is_available():
-            prompt = f"""You are FocusMate Local, an empathetic study assistant for neurodivergent students.
-Analyze this messy brain dump and separate tasks into two clean categories:
-1. "immediate_study": Tasks that represent academic work or the assignment to focus on right now.
-2. "later_drawer": Errands, gym, calls, dinner, personal time, gaming, or reminders to park away so the student's mind is calm.
-
-For each item in later_drawer, return:
-- "title": concise task name (e.g. "Hit the gym", "Call mom", "Eat dinner")
-- "category": one of ["errand", "health", "call", "meal", "personal", "leisure"]
-- "estimated_minutes": quick realistic integer estimate (e.g. 5, 15, 30)
-- "is_quick_win": true if under 10 minutes
+            prompt = f"""You are FocusMate Local, an empathetic cognitive shield agent for neurodivergent (ADHD) students.
+Analyze this messy brain dump and separate tasks into:
+1. "immediate_study": Academic tasks/assignments to focus on right now on the guided desk.
+2. "later_drawer": Intrusive thoughts, errands, gym, calls, dinner, personal time, gaming, or reminders.
+   For each later_drawer task, act as an executive function coach:
+   - "title": concise task name (e.g. "Call Mom", "Go to Gym")
+   - "category": one of ["errand", "health", "call", "meal", "personal", "leisure"]
+   - "estimated_minutes": realistic integer (e.g. 5, 15, 45)
+   - "is_quick_win": true if under 10 minutes
+   - "agent_reasoning": 1 sentence explaining why the agent parked it to protect working memory
+   - "suggested_window": when to do it (e.g. "During 5-min study pause", "Post-Session at 6:30 PM", "Evening downtime")
+   - "starter_action": 1 pre-drafted micro-step so student won't procrastinate later (e.g. pre-draft text or 30-sec first step)
 
 Input brain dump:
 \"\"\"{raw_input}\"\"\"
@@ -56,7 +58,15 @@ Input brain dump:
 Return STRICT JSON:
 {{
   "immediate_study": [{{"title": "...", "description": "...", "priority": "high"}}],
-  "later_drawer": [{{"title": "...", "category": "...", "estimated_minutes": 5, "is_quick_win": true}}]
+  "later_drawer": [{{
+    "title": "...", 
+    "category": "...", 
+    "estimated_minutes": 5, 
+    "is_quick_win": true,
+    "agent_reasoning": "...",
+    "suggested_window": "...",
+    "starter_action": "..."
+  }}]
 }}
 """
             llm_result = self.llm.generate(prompt=prompt, system="Output only valid JSON.")
@@ -79,19 +89,37 @@ Return STRICT JSON:
         return self._heuristic_catch_all_parser(raw_input)
 
     def _heuristic_catch_all_parser(self, text: str) -> Dict[str, Any]:
-        """Deterministic offline rule-based parser for mixed thoughts."""
+        """Deterministic offline agentic parser for mixed intrusive thoughts."""
         phrases = [p.strip() for p in re.split(r'[,;\n]|\band\b', text, flags=re.IGNORECASE) if p.strip()]
         
         later_rules = [
-            (r'\bgym\b|\bworkout\b|\bexercise\b|\brun\b', "health", 45, False),
-            (r'\bdinner\b|\blunch\b|\bbreakfast\b|\beat\b|\bfood\b|\bmeal\b', "meal", 25, False),
-            (r'\bmom\b|\bdad\b|\bparents\b|\bcall\b|\bphone\b|\bmessage\b|\btext\b', "call", 5, True),
-            (r'\bgf\b|\bgirlfriend\b|\bfriend\b|\bhangout\b|\bdate\b', "personal", 30, False),
-            (r'\bplay\b|\bbmw\b|\bgame\b|\bgaming\b|\bvideo game\b|\bwatch\b|\bmovie\b', "leisure", 20, False),
-            (r'\bbuy\b|\bshop\b|\bstore\b|\bgroceries\b|\bnotebook\b|\bpen\b', "errand", 10, True),
-            (r'\bclean\b|\bwash\b|\blaundry\b|\broom\b', "chore", 15, False),
-            (r'\bwater\b|\bhydrate\b|\bmedicine\b|\bpill\b', "health", 1, True),
-            (r'\bbill\b|\bpay\b|\brecharge\b', "errand", 3, True),
+            (r'\bgym\b|\bworkout\b|\bexercise\b|\brun\b', "health", 45, False,
+             "Physical exertion takes high energy. Parked until study blocks are finished.",
+             "Post-Study Session (Evening)", "Pack gym bag & water bottle now so you can go immediately after."),
+            (r'\bdinner\b|\blunch\b|\bbreakfast\b|\beat\b|\bfood\b|\bmeal\b', "meal", 25, False,
+             "Eating while problem-solving leads to brain fog. Scheduled as a dedicated reward break.",
+             "After Question 4 (Reward Meal)", "Decide what to eat so you don't spend 20 mins scrolling delivery apps later."),
+            (r'\bmom\b|\bdad\b|\bparents\b|\bcall\b|\bphone\b|\bmessage\b|\btext\b', "call", 5, True,
+             "Communication triggers emotional context switching. Parked to protect working memory.",
+             "During 5-min cognitive break", "Quick text: 'Hey, finishing up physics lab, calling you in a bit!'"),
+            (r'\bgf\b|\bgirlfriend\b|\bfriend\b|\bhangout\b|\bdate\b', "personal", 30, False,
+             "Social interactions pull focus into conversation loops. Safely scheduled for later.",
+             "Evening Leisure Window", "Send quick ETA: 'Hey! Crushing this lab right now, free soon!'"),
+            (r'\bplay\b|\bbmw\b|\bgame\b|\bgaming\b|\bvideo game\b|\bwatch\b|\bmovie\b', "leisure", 20, False,
+             "High-dopamine gaming induces executive dysfunction if started early. Held as final reward.",
+             "100% Completion Reward", "Boot up game only after Export Solution button is clicked."),
+            (r'\bbuy\b|\bshop\b|\bstore\b|\bgroceries\b|\bnotebook\b|\bpen\b', "errand", 10, True,
+             "Errands clutter working memory RAM. Stored in parking lot with zero guilt.",
+             "On the way back from study hall", "List the top 2 items to grab without browsing."),
+            (r'\bclean\b|\bwash\b|\blaundry\b|\broom\b', "chore", 15, False,
+             "Productive procrastination trap. Parked so cleaning doesn't replace solving problems.",
+             "Post-study wind down", "Set a 10-minute timer after finishing Question 4."),
+            (r'\bwater\b|\bhydrate\b|\bmedicine\b|\bpill\b', "health", 1, True,
+             "Zero-friction physical maintenance. Can be completed during a 60-second micro-pause.",
+             "Immediate 1-min quick win", "Take a sip from your bottle right now."),
+            (r'\bbill\b|\bpay\b|\brecharge\b', "errand", 3, True,
+             "Low-effort administrative task. Kept in drawer so payment tabs don't hijack your browser.",
+             "After finishing this problem", "Keep UPI app open on phone for 30-sec checkout.")
         ]
 
         study_keywords = [
@@ -102,15 +130,20 @@ Return STRICT JSON:
         immediate_study = []
         later_drawer = []
 
-        for p in phrases:
+        for idx, p in enumerate(phrases, 1):
             matched = False
-            for pattern, cat, est_mins, quick_win in later_rules:
+            for pattern, cat, est_mins, quick_win, reasoning, window, starter in later_rules:
                 if re.search(pattern, p, re.I):
                     later_drawer.append({
+                        "id": f"later_{idx}",
                         "title": p.capitalize(),
                         "category": cat,
                         "estimated_minutes": est_mins,
-                        "is_quick_win": quick_win
+                        "is_quick_win": quick_win,
+                        "agent_reasoning": reasoning,
+                        "suggested_window": window,
+                        "starter_action": starter,
+                        "status": "parked"
                     })
                     matched = True
                     break
@@ -125,16 +158,64 @@ Return STRICT JSON:
                     })
                 else:
                     later_drawer.append({
+                        "id": f"later_{idx}",
                         "title": p.capitalize(),
                         "category": "personal",
                         "estimated_minutes": 10,
-                        "is_quick_win": True
+                        "is_quick_win": True,
+                        "agent_reasoning": "Intercepted intrusive thought. Stored safely so you don't lose context.",
+                        "suggested_window": "Post-Study Window",
+                        "starter_action": "Revisit after completing current study section.",
+                        "status": "parked"
                     })
 
         return {
             "immediate_study": immediate_study,
             "later_drawer": later_drawer,
             "llm_powered": False
+        }
+
+    def triage_later_drawer(self, items: List[Dict[str, Any]], completed_steps: int = 0, total_steps: int = 4) -> Dict[str, Any]:
+        """
+        Agentic Executive Function Triage:
+        Analyzes the student's parked tasks against current study progress.
+        Categorizes items into:
+        1. quick_wins: 2-3 minute dopamine resets safe during a micro-break
+        2. post_session: errands to run once all study chunks are marked complete
+        3. evening_rest: high-dopamine leisure parked away from the desk
+        """
+        quick_wins = []
+        post_session = []
+        evening_rest = []
+
+        for item in items:
+            cat = str(item.get("category", "errand")).lower()
+            mins = int(item.get("estimated_minutes", 10))
+            
+            if mins <= 5 or cat in ["call", "health"]:
+                quick_wins.append(item)
+            elif cat in ["leisure", "personal"]:
+                evening_rest.append(item)
+            else:
+                post_session.append(item)
+
+        progress_pct = round((completed_steps / max(total_steps, 1)) * 100)
+        
+        if progress_pct >= 75:
+            agent_advice = "🎯 You are in the final stretch! Finish the remaining problems, then knock out your post-session errands in one clean sweep."
+        elif len(quick_wins) > 0 and completed_steps >= 2:
+            agent_advice = f"⚡ You've completed {completed_steps} questions! Your brain might need a brief dopamine reset. Try '{quick_wins[0]['title']}' (2 min) before the next problem."
+        else:
+            agent_advice = "🛡️ All intrusive thoughts are safely shielded in your Later Drawer. Your working memory is 100% dedicated to this problem."
+
+        return {
+            "status": "triaged",
+            "agent_advice": agent_advice,
+            "quick_wins": quick_wins,
+            "post_session": post_session,
+            "evening_rest": evening_rest,
+            "total_shielded_minutes": sum(int(i.get("estimated_minutes", 10)) for i in items),
+            "timestamp": time.time()
         }
 
     # =========================================================================

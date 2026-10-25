@@ -82,6 +82,11 @@ class BreadcrumbSaveRequest(BaseModel):
     session_title: Optional[str] = "Study Session"
     later_drawer_items: Optional[List[Dict[str, Any]]] = []
 
+class TriageDrawerRequest(BaseModel):
+    items: List[Dict[str, Any]]
+    completed_steps: Optional[int] = 0
+    total_steps: Optional[int] = 4
+
 # ---------------------------------------------------------------------------
 # API Endpoints
 # ---------------------------------------------------------------------------
@@ -104,6 +109,14 @@ def parse_catch_all(req: CatchAllRequest):
     """Universal Catch-All: Separates immediate study from later reminders."""
     try:
         return agent.parse_catch_all(req.input_text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/triage-drawer")
+def triage_drawer(req: TriageDrawerRequest):
+    """Agentic Executive Function Triage: Schedules and groups parked thoughts by energy."""
+    try:
+        return agent.triage_later_drawer(req.items, completed_steps=req.completed_steps or 0, total_steps=req.total_steps or 4)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

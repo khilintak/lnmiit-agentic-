@@ -1106,3 +1106,145 @@ button:disabled {
   color: inherit;
   padding: 0 4px;
 }
+
+/* ==========================================================================
+   Scratchpad Formula & Structure Dropdown (Right-side minimalist)
+   ========================================================================== */
+.scratchpad-formula-select {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-medium);
+  background-color: var(--bg-surface);
+  color: var(--text-ink);
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-fast);
+  max-width: 135px;
+}
+
+.scratchpad-formula-select:hover,
+.scratchpad-formula-select:focus {
+  border-color: var(--border-focus);
+  background-color: var(--bg-subtle);
+}
+
+/* ==========================================================================
+   In-Session Distraction Interceptor (In Ribbon)
+   ========================================================================== */
+.ribbon-center-interceptor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-hairline);
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  max-width: 320px;
+  flex: 1;
+}
+
+.desk-distraction-input {
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  color: var(--text-ink);
+  outline: none;
+  width: 100%;
+}
+
+.desk-distraction-input::placeholder {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   Agentic Later Drawer & Cognitive Shield Styles
+   ========================================================================== */
+.agent-shield-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-sage-soft);
+  color: var(--accent-sage);
+  border: 1px solid rgba(47, 89, 68, 0.2);
+}
+
+.drawer-agent-summary-bar {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.agent-triage-advice-box {
+  background-color: var(--accent-sage-soft);
+  border: 1px solid rgba(47, 89, 68, 0.25);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--accent-sage);
+  font-weight: 500;
+}
+
+.later-drawer-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.parked-task-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all var(--transition-fast);
+}
+
+.parked-task-card:hover {
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-subtle);
+}
+
+.parked-task-card.completed {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.parked-task-reasoning {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.parked-task-starter {
+  font-size: 11px;
+  background-color: var(--bg-subtle);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  margin-top: 6px;
+  color: var(--text-ink);
+  font-family: var(--font-mono);
+}

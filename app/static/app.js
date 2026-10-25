@@ -83,6 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const thinkingFeedbackText = document.getElementById('thinking-feedback-text');
   const btnCloseThinking = document.getElementById('btn-close-thinking');
 
+  // Formula dropdown & Distraction interceptor
+  const scratchpadFormulaSelect = document.getElementById('scratchpad-formula-select');
+  const deskDistractionInput = document.getElementById('desk-distraction-input');
+  const btnDeskParkDistraction = document.getElementById('btn-desk-park-distraction');
+
   // Footer elements
   const footerOllamaDot = document.getElementById('footer-ollama-dot');
   const footerStatusText = document.getElementById('footer-status-text');
@@ -100,6 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const quickAddInputRow = document.getElementById('quick-add-input-row');
   const quickLaterInput = document.getElementById('quick-later-input');
   const btnSaveQuickLater = document.getElementById('btn-save-quick-later');
+  const btnAgentTriageDrawer = document.getElementById('btn-agent-triage-drawer');
+  const agentTriageAdviceBox = document.getElementById('agent-triage-advice-box');
+  const agentTriageAdviceText = document.getElementById('agent-triage-advice-text');
+  const drawerShieldHeading = document.getElementById('drawer-shield-heading');
 
   const modalResumeCard = document.getElementById('modal-resume-card');
   const btnCloseResumeModal = document.getElementById('btn-close-resume-modal');
@@ -246,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnFooterExport) {
     btnFooterExport.addEventListener('click', () => {
-      btnExportSession.click();
+      openExportModal();
     });
   }
 
@@ -620,15 +629,54 @@ document.addEventListener('DOMContentLoaded', () => {
     scratchpadCharCount.textContent = `${words} words`;
   }
 
-  // Quick formula insertion chips
-  document.querySelectorAll('.formula-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      const insertText = chip.getAttribute('data-insert');
-      insertAtCursor(scratchpadTextarea, insertText + "\n");
-      saveCurrentScratchpad();
-      saveBreadcrumbCheckpoint();
+  // Quick formula & structure insertion via minimalist dropdown
+  if (scratchpadFormulaSelect) {
+    scratchpadFormulaSelect.addEventListener('change', () => {
+      const insertText = scratchpadFormulaSelect.value;
+      if (insertText) {
+        insertAtCursor(scratchpadTextarea, insertText);
+        saveCurrentScratchpad();
+        saveBreadcrumbCheckpoint();
+        scratchpadFormulaSelect.selectedIndex = 0;
+      }
     });
-  });
+  }
+
+  // In-Session Distraction Interceptor (In Desk Ribbon)
+  function handleDeskParkDistraction() {
+    if (!deskDistractionInput) return;
+    const val = deskDistractionInput.value.trim();
+    if (!val) return;
+
+    state.laterDrawer.push({
+      id: `distract_${Date.now()}`,
+      title: val.charAt(0).toUpperCase() + val.slice(1),
+      category: "distraction",
+      estimated_minutes: 5,
+      is_quick_win: true,
+      agent_reasoning: "Intercepted in-session thought. Stored in Later Drawer so your working memory stays on the current problem.",
+      suggested_window: "Post-Session Window",
+      starter_action: "Execute after finishing current assignment.",
+      status: "parked"
+    });
+
+    deskDistractionInput.value = "";
+    updateLaterDrawerBadge();
+    saveBreadcrumbCheckpoint();
+    showNotice(`🤖 Shielded: "${val}" parked into Later Drawer!`, "info");
+  }
+
+  if (btnDeskParkDistraction) {
+    btnDeskParkDistraction.addEventListener('click', handleDeskParkDistraction);
+  }
+  if (deskDistractionInput) {
+    deskDistractionInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleDeskParkDistraction();
+      }
+    });
+  }
 
   function insertAtCursor(textarea, text) {
     const start = textarea.selectionStart;
@@ -859,59 +907,156 @@ document.addEventListener('DOMContentLoaded', () => {
     if (laterCountBadge) laterCountBadge.textContent = count;
     const footerCount = document.getElementById('footer-later-count');
     if (footerCount) footerCount.textContent = count;
+    if (drawerShieldHeading) {
+      drawerShieldHeading.textContent = `${count} Distractions Intercepted & Safely Parked`;
+    }
     renderLaterDrawerItems();
   }
 
   function renderLaterDrawerItems() {
+    if (!laterDrawerItemsList) return;
     laterDrawerItemsList.innerHTML = "";
     if (state.laterDrawer.length === 0) {
-      laterDrawerItemsList.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; padding: 12px 0;">No later items parked. All clear!</div>';
+      laterDrawerItemsList.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; padding: 24px 0; text-align: center;">No intrusive thoughts parked. Your working memory is clear and calm!</div>';
       return;
     }
 
     state.laterDrawer.forEach((item, index) => {
       const card = document.createElement('div');
-      card.className = 'parked-task-card';
+      const isDone = item.status === 'completed';
+      card.className = `parked-task-card ${isDone ? 'completed' : ''}`;
+      
+      const catBadge = item.category ? `🏷️ ${item.category}` : '🏷️ task';
+      const estBadge = `⏱️ ~${item.estimated_minutes || 5} min`;
+      const quickBadge = item.is_quick_win ? '<span style="color: var(--accent-sage); font-weight: 600; font-size: 11px;">⚡ Quick Win</span>' : '';
+      const windowBadge = item.suggested_window ? `<span style="color: var(--accent-ochre); font-size: 11px;">🕒 ${item.suggested_window}</span>` : '';
+      
+      const reasoningHtml = item.agent_reasoning 
+        ? `<div class="parked-task-reasoning">🤖 <strong>Agent Shield:</strong> ${item.agent_reasoning}</div>` 
+        : '';
+        
+      const starterHtml = item.starter_action 
+        ? `<div class="parked-task-starter">⚡ <strong>Starter:</strong> ${item.starter_action}</div>` 
+        : '';
+
       card.innerHTML = `
-        <div>
-          <div class="parked-task-name">${item.title}</div>
-          <div class="parked-task-meta">
-            <span>🏷️ ${item.category || 'task'}</span>
-            <span>⏱️ ~${item.estimated_minutes || 5} min</span>
-            ${item.is_quick_win ? '<span style="color: var(--accent-sage); font-weight: 600;">⚡ Quick Win</span>' : ''}
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" class="later-check-done" data-index="${index}" ${isDone ? 'checked' : ''} title="Mark done">
+            <span class="parked-task-name" style="${isDone ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item.title}</span>
+          </div>
+          <div class="parked-task-meta" style="margin-left: 24px; margin-top: 4px;">
+            <span>${catBadge}</span>
+            <span>${estBadge}</span>
+            ${quickBadge}
+            ${windowBadge}
+          </div>
+          <div style="margin-left: 24px;">
+            ${reasoningHtml}
+            ${starterHtml}
           </div>
         </div>
-        <button class="btn btn-secondary btn-reroute-item" data-index="${index}" style="font-size: 11px; padding: 4px 8px;">
-          ⚡ Switch to this
-        </button>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <button class="btn btn-secondary btn-reroute-item" data-index="${index}" style="font-size: 11px; padding: 4px 8px; white-space: nowrap;">
+            ⚡ Switch to this (Break)
+          </button>
+        </div>
       `;
       laterDrawerItemsList.appendChild(card);
     });
 
+    // Checkbox toggles
+    document.querySelectorAll('.later-check-done').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const idx = parseInt(e.target.getAttribute('data-index'), 10);
+        state.laterDrawer[idx].status = e.target.checked ? 'completed' : 'parked';
+        updateLaterDrawerBadge();
+        saveBreadcrumbCheckpoint();
+      });
+    });
+
+    // Switch to this break item
     document.querySelectorAll('.btn-reroute-item').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const idx = parseInt(e.target.getAttribute('data-index'), 10);
         const item = state.laterDrawer[idx];
         modalLaterDrawer.classList.add('hidden');
         
-        scratchpadTextarea.value = `### ⚡ 2-Minute Quick Win: ${item.title}\n[ ] Completed\n\n` + scratchpadTextarea.value;
+        scratchpadTextarea.value = `### ☕ 2-Minute Dopamine Break: ${item.title}\n` +
+          (item.starter_action ? `• Action: ${item.starter_action}\n` : '') +
+          `[ ] Finished (Returning to question)\n\n` + scratchpadTextarea.value;
         saveCurrentScratchpad();
         saveBreadcrumbCheckpoint();
         scratchpadTextarea.focus();
-        showNotice(`Switched focus to: "${item.title}"`, "info");
+        showNotice(`Taking a 2-minute break: "${item.title}"`, "info");
       });
     });
   }
 
-  btnOpenLaterDrawer.addEventListener('click', () => {
-    renderLaterDrawerItems();
-    modalLaterDrawer.classList.remove('hidden');
-  });
+  // Agent Smart Triage Handler
+  if (btnAgentTriageDrawer) {
+    btnAgentTriageDrawer.addEventListener('click', async () => {
+      if (state.laterDrawer.length === 0) {
+        showNotice("No parked thoughts to triage right now.", "info");
+        return;
+      }
+
+      btnAgentTriageDrawer.disabled = true;
+      btnAgentTriageDrawer.textContent = "🤖 Sequencing by energy...";
+
+      try {
+        const res = await fetch('/api/triage-drawer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: state.laterDrawer,
+            completed_steps: state.completedIds.size,
+            total_steps: state.chunks.length
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (agentTriageAdviceBox && agentTriageAdviceText) {
+            agentTriageAdviceText.textContent = data.agent_advice || "Tasks sequenced by energy level.";
+            agentTriageAdviceBox.classList.remove('hidden');
+          }
+
+          // Order items: quick wins first, then post-session, then evening rest
+          const reordered = [
+            ...(data.quick_wins || []),
+            ...(data.post_session || []),
+            ...(data.evening_rest || [])
+          ];
+          if (reordered.length > 0) {
+            state.laterDrawer = reordered;
+            renderLaterDrawerItems();
+          }
+        }
+      } catch (err) {
+        console.warn("Triage failed:", err);
+      } finally {
+        btnAgentTriageDrawer.disabled = false;
+        btnAgentTriageDrawer.textContent = "🤖 Agent Smart Triage";
+      }
+    });
+  }
+
+  if (btnOpenLaterDrawer) {
+    btnOpenLaterDrawer.addEventListener('click', () => {
+      renderLaterDrawerItems();
+      modalLaterDrawer.classList.remove('hidden');
+    });
+  }
 
   const btnFooterLater = document.getElementById('btn-footer-later');
   if (btnFooterLater) {
     btnFooterLater.addEventListener('click', () => {
-      btnOpenLaterDrawer.click();
+      if (btnOpenLaterDrawer) btnOpenLaterDrawer.click();
+      else {
+        renderLaterDrawerItems();
+        modalLaterDrawer.classList.remove('hidden');
+      }
     });
   }
 
@@ -931,10 +1076,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const val = quickLaterInput.value.trim();
       if (val) {
         state.laterDrawer.push({
-          title: val,
+          id: `distract_${Date.now()}`,
+          title: val.charAt(0).toUpperCase() + val.slice(1),
           category: "personal",
           estimated_minutes: 5,
-          is_quick_win: true
+          is_quick_win: true,
+          agent_reasoning: "Manually parked thought. Preserved in drawer so you can finish your study streak.",
+          suggested_window: "Post-Study Window",
+          starter_action: "Execute during break or post-session.",
+          status: "parked"
         });
         quickLaterInput.value = "";
         quickAddInputRow.style.display = 'none';
@@ -952,9 +1102,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // BENCHMARK MODAL (3 REPEAT RUNS)
   // --------------------------------------------------------------------------
-  btnOpenBenchmark.addEventListener('click', () => {
-    modalBenchmark.classList.remove('hidden');
-  });
+  if (btnOpenBenchmark) {
+    btnOpenBenchmark.addEventListener('click', () => {
+      modalBenchmark.classList.remove('hidden');
+    });
+  }
   btnCloseBenchmarkModal.addEventListener('click', () => modalBenchmark.classList.add('hidden'));
   btnDoneBenchmark.addEventListener('click', () => modalBenchmark.classList.add('hidden'));
 
@@ -1001,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // EXPORT MODAL
   // --------------------------------------------------------------------------
-  btnExportSession.addEventListener('click', async () => {
+  async function openExportModal() {
     saveCurrentScratchpad();
     try {
       const res = await fetch('/api/export', {
@@ -1024,7 +1176,14 @@ document.addEventListener('DOMContentLoaded', () => {
       exportMarkdownContent.value = `# ${state.sessionTitle}\n\n*Progress recorded locally.*`;
       modalExport.classList.remove('hidden');
     }
-  });
+  }
+
+  if (btnExportSession) {
+    btnExportSession.addEventListener('click', openExportModal);
+  }
+  if (btnFooterExport) {
+    btnFooterExport.addEventListener('click', openExportModal);
+  }
 
   btnCloseExportModal.addEventListener('click', () => modalExport.classList.add('hidden'));
 
