@@ -134,6 +134,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCopyExport = document.getElementById('btn-copy-export');
   const btnDownloadExport = document.getElementById('btn-download-export');
 
+  // Full-Screen Focus / Break Timer Overlay (ADHD Shield + Negative Overtime)
+  const fullscreenFocusTimer = document.getElementById('fullscreen-focus-timer');
+  const btnCloseFocusTimer = document.getElementById('btn-close-focus-timer');
+  const focusTaskCategory = document.getElementById('focus-task-category');
+  const focusTaskWindow = document.getElementById('focus-task-window');
+  const focusTaskTitle = document.getElementById('focus-task-title');
+  const focusTaskStarter = document.getElementById('focus-task-starter');
+  const focusTaskReasoning = document.getElementById('focus-task-reasoning');
+  const focusCountdownDisplay = document.getElementById('focus-countdown-display');
+  const focusTimerStatus = document.getElementById('focus-timer-status');
+  const focusStatusIcon = document.getElementById('focus-status-icon');
+  const focusTimerStatusText = document.getElementById('focus-timer-status-text');
+  const btnTimerSub1m = document.getElementById('btn-timer-sub-1m');
+  const btnTimerPauseResume = document.getElementById('btn-timer-pause-resume');
+  const btnTimerAdd1m = document.getElementById('btn-timer-add-1m');
+  const btnFocusTaskCompleted = document.getElementById('btn-focus-task-completed');
+  const btnFocusTaskRepeat = document.getElementById('btn-focus-task-repeat');
+
+  // Full-Screen Focus Timer State
+  let activeFocusTask = null;
+  let activeFocusTaskIndex = -1;
+  let focusTimerInterval = null;
+  let focusTimerSeconds = 120; // Supports negative values for ADHD guilt-free overtime!
+  let focusInitialSeconds = 120;
+  let isFocusTimerPaused = false;
+
   // --------------------------------------------------------------------------
   // Gentle Inline Notice Banner
   // --------------------------------------------------------------------------
@@ -940,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
         : '';
 
       card.innerHTML = `
-        <div style="flex: 1;">
+        <div style="flex: 1; cursor: pointer;" class="parked-task-clickable" data-index="${index}" title="Click to start full-screen timer">
           <div style="display: flex; align-items: center; gap: 8px;">
             <input type="checkbox" class="later-check-done" data-index="${index}" ${isDone ? 'checked' : ''} title="Mark done">
             <span class="parked-task-name" style="${isDone ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item.title}</span>
@@ -956,17 +982,18 @@ document.addEventListener('DOMContentLoaded', () => {
             ${starterHtml}
           </div>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          <button class="btn btn-secondary btn-reroute-item" data-index="${index}" style="font-size: 11px; padding: 4px 8px; white-space: nowrap;">
-            ⚡ Switch to this (Break)
+        <div style="display: flex; flex-direction: column; gap: 6px; justify-content: center;">
+          <button class="btn btn-accent btn-start-focus-timer" data-index="${index}" style="font-size: 11px; padding: 5px 12px; white-space: nowrap;">
+            ⏱️ Start Timer
           </button>
         </div>
       `;
       laterDrawerItemsList.appendChild(card);
     });
 
-    // Checkbox toggles
+    // Checkbox toggles (stops propagation so clicking checkbox doesn't launch timer)
     document.querySelectorAll('.later-check-done').forEach(cb => {
+      cb.addEventListener('click', (e) => e.stopPropagation());
       cb.addEventListener('change', (e) => {
         const idx = parseInt(e.target.getAttribute('data-index'), 10);
         state.laterDrawer[idx].status = e.target.checked ? 'completed' : 'parked';
@@ -975,23 +1002,192 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Switch to this break item
-    document.querySelectorAll('.btn-reroute-item').forEach(btn => {
+    // Start full-screen timer from button click
+    document.querySelectorAll('.btn-start-focus-timer').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const idx = parseInt(e.target.getAttribute('data-index'), 10);
-        const item = state.laterDrawer[idx];
-        modalLaterDrawer.classList.add('hidden');
-        
-        scratchpadTextarea.value = `### ☕ 2-Minute Dopamine Break: ${item.title}\n` +
-          (item.starter_action ? `• Action: ${item.starter_action}\n` : '') +
-          `[ ] Finished (Returning to question)\n\n` + scratchpadTextarea.value;
-        saveCurrentScratchpad();
-        saveBreadcrumbCheckpoint();
-        scratchpadTextarea.focus();
-        showNotice(`Taking a 2-minute break: "${item.title}"`, "info");
+        openFullScreenTimer(state.laterDrawer[idx], idx);
+      });
+    });
+
+    // Start full-screen timer from clicking task card body
+    document.querySelectorAll('.parked-task-clickable').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.getAttribute('data-index'), 10);
+        openFullScreenTimer(state.laterDrawer[idx], idx);
       });
     });
   }
+
+  // --------------------------------------------------------------------------
+  // Full-Screen Focus / Break Timer Logic (ADHD Shield + Negative Overtime)
+  // --------------------------------------------------------------------------
+  function formatTimerSeconds(totalSeconds) {
+    const isNegative = totalSeconds < 0;
+    const abs = Math.abs(totalSeconds);
+    const m = Math.floor(abs / 60);
+    const s = abs % 60;
+    return `${isNegative ? '-' : ''}${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  function renderFocusTimerDisplay() {
+    if (!focusCountdownDisplay) return;
+    const formatted = formatTimerSeconds(focusTimerSeconds);
+    focusCountdownDisplay.textContent = formatted;
+
+    const isNegative = focusTimerSeconds < 0;
+    if (isNegative) {
+      focusCountdownDisplay.classList.add('overtime');
+      if (focusTimerStatus) focusTimerStatus.classList.add('overtime');
+      if (focusStatusIcon) focusStatusIcon.textContent = "⚠️";
+      if (focusTimerStatusText) {
+        focusTimerStatusText.textContent = `Overtime (${formatted}) — Take your time, wrap up gently without stress!`;
+      }
+    } else {
+      focusCountdownDisplay.classList.remove('overtime');
+      if (focusTimerStatus) focusTimerStatus.classList.remove('overtime');
+      if (focusStatusIcon) {
+        focusStatusIcon.textContent = isFocusTimerPaused ? "⏸" : "⏳";
+      }
+      if (focusTimerStatusText) {
+        focusTimerStatusText.textContent = isFocusTimerPaused
+          ? "Timer paused — take a calm breath"
+          : "Timer running — stay present and recharge";
+      }
+    }
+  }
+
+  function openFullScreenTimer(item, index) {
+    if (!fullscreenFocusTimer) return;
+    activeFocusTask = item;
+    activeFocusTaskIndex = index;
+
+    // Determine estimated duration (default: 2 minutes for quick dopamine break, or item.estimated_minutes)
+    const est = item && item.estimated_minutes && !isNaN(item.estimated_minutes)
+      ? parseInt(item.estimated_minutes, 10)
+      : 2;
+    focusInitialSeconds = Math.max(1, est) * 60;
+    focusTimerSeconds = focusInitialSeconds;
+    isFocusTimerPaused = false;
+
+    // Populate elements
+    if (focusTaskTitle) focusTaskTitle.textContent = item.title || "Quick Focus Break";
+    if (focusTaskCategory) focusTaskCategory.textContent = item.category ? `🏷️ ${item.category}` : '🏷️ Quick Break';
+    if (focusTaskWindow) {
+      focusTaskWindow.textContent = item.suggested_window 
+        ? `🕒 ${item.suggested_window}` 
+        : (item.is_quick_win ? '⚡ Quick Win' : '🕒 In-Session Break');
+    }
+    if (focusTaskStarter) {
+      focusTaskStarter.textContent = item.starter_action || "Step away from screen, hydrate, and stretch.";
+    }
+    if (focusTaskReasoning) {
+      focusTaskReasoning.textContent = item.agent_reasoning 
+        ? `🛡️ Agent Advice: ${item.agent_reasoning}` 
+        : "🛡️ Cognitive Shield: 2-minute reset protects your working memory from mental fatigue.";
+    }
+    if (btnTimerPauseResume) btnTimerPauseResume.textContent = "⏸ Pause";
+
+    // Close later drawer modal
+    if (modalLaterDrawer) modalLaterDrawer.classList.add('hidden');
+
+    // Show full screen overlay
+    fullscreenFocusTimer.classList.remove('hidden');
+
+    // Render initial clock
+    renderFocusTimerDisplay();
+
+    // Start timer interval
+    if (focusTimerInterval) clearInterval(focusTimerInterval);
+    focusTimerInterval = setInterval(() => {
+      if (!isFocusTimerPaused) {
+        focusTimerSeconds--;
+        renderFocusTimerDisplay();
+      }
+    }, 1000);
+  }
+
+  function stopFullScreenTimer() {
+    if (focusTimerInterval) {
+      clearInterval(focusTimerInterval);
+      focusTimerInterval = null;
+    }
+    if (fullscreenFocusTimer) {
+      fullscreenFocusTimer.classList.add('hidden');
+    }
+  }
+
+  // Timer Action Buttons
+  if (btnFocusTaskCompleted) {
+    btnFocusTaskCompleted.addEventListener('click', () => {
+      if (activeFocusTaskIndex >= 0 && state.laterDrawer[activeFocusTaskIndex]) {
+        state.laterDrawer[activeFocusTaskIndex].status = 'completed';
+      } else if (activeFocusTask) {
+        activeFocusTask.status = 'completed';
+      }
+      const completedTitle = activeFocusTask ? activeFocusTask.title : "Task";
+      stopFullScreenTimer();
+      updateLaterDrawerBadge();
+      saveBreadcrumbCheckpoint();
+      showNotice(`✓ "${completedTitle}" completed! Great job taking care of your brain.`, "info");
+    });
+  }
+
+  if (btnFocusTaskRepeat) {
+    btnFocusTaskRepeat.addEventListener('click', () => {
+      focusTimerSeconds = focusInitialSeconds;
+      isFocusTimerPaused = false;
+      if (btnTimerPauseResume) btnTimerPauseResume.textContent = "⏸ Pause";
+      renderFocusTimerDisplay();
+      if (!focusTimerInterval) {
+        focusTimerInterval = setInterval(() => {
+          if (!isFocusTimerPaused) {
+            focusTimerSeconds--;
+            renderFocusTimerDisplay();
+          }
+        }, 1000);
+      }
+      const mins = Math.round(focusInitialSeconds / 60);
+      showNotice(`🔄 Timer reset to ${mins} min. Let's do this!`, "info");
+    });
+  }
+
+  if (btnTimerPauseResume) {
+    btnTimerPauseResume.addEventListener('click', () => {
+      isFocusTimerPaused = !isFocusTimerPaused;
+      btnTimerPauseResume.textContent = isFocusTimerPaused ? "▶ Resume" : "⏸ Pause";
+      renderFocusTimerDisplay();
+    });
+  }
+
+  if (btnTimerSub1m) {
+    btnTimerSub1m.addEventListener('click', () => {
+      focusTimerSeconds -= 60;
+      renderFocusTimerDisplay();
+    });
+  }
+
+  if (btnTimerAdd1m) {
+    btnTimerAdd1m.addEventListener('click', () => {
+      focusTimerSeconds += 60;
+      renderFocusTimerDisplay();
+    });
+  }
+
+  if (btnCloseFocusTimer) {
+    btnCloseFocusTimer.addEventListener('click', () => {
+      stopFullScreenTimer();
+      showNotice("Returned to desk. Task remains parked in Later Drawer.", "info");
+    });
+  }
+
+  // Keyboard Escape shortcut for full-screen timer
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && fullscreenFocusTimer && !fullscreenFocusTimer.classList.contains('hidden')) {
+      stopFullScreenTimer();
+    }
+  });
 
   // Agent Smart Triage Handler
   if (btnAgentTriageDrawer) {

@@ -463,6 +463,78 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       FULL-SCREEN BREAK / TASK TIMER (ADHD Shield with Negative Overtime)
+       ======================================================================== -->
+  <div class="fullscreen-focus-overlay hidden" id="fullscreen-focus-timer">
+    <!-- Top Minimalist Bar -->
+    <div class="focus-timer-topbar">
+      <div class="focus-timer-brand">
+        <span class="focus-pulse-dot"></span>
+        <span class="focus-timer-mode-label" id="focus-timer-mode-label">⚡ Task &amp; Break Mode</span>
+      </div>
+      <button class="btn btn-secondary focus-exit-btn" id="btn-close-focus-timer" title="Return to Work Desk without completing">
+        ✕ Back to Desk
+      </button>
+    </div>
+
+    <!-- Centered Immersion Stage -->
+    <div class="focus-timer-stage">
+      <!-- Task Header -->
+      <div class="focus-task-header">
+        <div class="focus-task-pills">
+          <span class="focus-category-pill" id="focus-task-category">🏷️ Quick Win</span>
+          <span class="focus-window-pill" id="focus-task-window">🕒 In-Session Break</span>
+        </div>
+        <h1 class="focus-task-title" id="focus-task-title">Drink water and stretch</h1>
+      </div>
+
+      <!-- Agent Guidance / Starter Hint -->
+      <div class="focus-task-guidance" id="focus-task-guidance">
+        <div class="focus-guidance-card">
+          <span class="focus-guidance-label">⚡ Micro-Starter:</span>
+          <span class="focus-guidance-text" id="focus-task-starter">Step away from screen, hydrate, and breathe.</span>
+        </div>
+        <div class="focus-guidance-reasoning" id="focus-task-reasoning">
+          🛡️ Cognitive Shield: 2-minute reset protects your working memory from cognitive fatigue.
+        </div>
+      </div>
+
+      <!-- Countdown Display -->
+      <div class="focus-timer-clock-wrap">
+        <div class="focus-countdown-display" id="focus-countdown-display">02:00</div>
+        <div class="focus-timer-status" id="focus-timer-status">
+          <span class="timer-status-icon" id="focus-status-icon">⏳</span>
+          <span id="focus-timer-status-text">Timer ticking — take a calm breath</span>
+        </div>
+      </div>
+
+      <!-- Quick Adjusters (Pause, -1m, +1m) -->
+      <div class="focus-timer-adjust-row">
+        <button class="focus-adjust-btn" id="btn-timer-sub-1m" title="Subtract 1 minute">-1 Min</button>
+        <button class="focus-adjust-btn focus-pause-btn" id="btn-timer-pause-resume" title="Pause or Resume Timer">
+          ⏸ Pause
+        </button>
+        <button class="focus-adjust-btn" id="btn-timer-add-1m" title="Add 1 minute">+1 Min</button>
+      </div>
+
+      <!-- Primary Action Buttons -->
+      <div class="focus-timer-actions">
+        <button class="btn btn-accent focus-action-btn-primary" id="btn-focus-task-completed">
+          ✓ Task Completed
+        </button>
+        <button class="btn btn-secondary focus-action-btn-secondary" id="btn-focus-task-repeat">
+          🔄 Repeat / Reset Timer
+        </button>
+      </div>
+
+      <!-- Empathetic ADHD Footnote -->
+      <div class="focus-timer-footnote">
+        💡 <strong>Zero Stress Rule:</strong> When the time runs out, the timer smoothly counts into <strong>negative time</strong> (e.g. <code>-00:30</code>) with zero alarms or panic, giving you guilt-free space to wrap up.
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

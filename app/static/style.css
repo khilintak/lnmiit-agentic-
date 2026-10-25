@@ -1248,3 +1248,275 @@ button:disabled {
   color: var(--text-ink);
   font-family: var(--font-mono);
 }
+
+/* ==========================================================================
+   Full-Screen Task & Break Timer Overlay (ADHD Shield + Negative Overtime)
+   ========================================================================== */
+.fullscreen-focus-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: var(--bg-canvas);
+  background: radial-gradient(circle at 50% 36%, var(--bg-surface) 0%, var(--bg-canvas) 85%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px 36px;
+  overflow-y: auto;
+  animation: focus-timer-fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fullscreen-focus-overlay.hidden {
+  display: none !important;
+}
+
+@keyframes focus-timer-fade-in {
+  from { opacity: 0; transform: scale(0.99); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.focus-timer-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding-bottom: 12px;
+}
+
+.focus-timer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+}
+
+.focus-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent-sage);
+  box-shadow: 0 0 8px rgba(47, 89, 68, 0.5);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.85); opacity: 0.4; }
+}
+
+.focus-exit-btn {
+  font-size: 12px;
+  padding: 5px 12px;
+}
+
+.focus-timer-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 20px 0;
+}
+
+.focus-task-pills {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.focus-category-pill,
+.focus-window-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-hairline);
+}
+
+.focus-task-title {
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 500;
+  color: var(--text-ink);
+  line-height: 1.25;
+  margin-bottom: 16px;
+  max-width: 640px;
+}
+
+.focus-task-guidance {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  margin-bottom: 22px;
+  max-width: 580px;
+  width: 100%;
+  box-shadow: var(--shadow-subtle);
+}
+
+.focus-guidance-card {
+  font-size: 13px;
+  color: var(--text-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.focus-guidance-label {
+  font-weight: 700;
+  color: var(--accent-terracotta);
+}
+
+.focus-guidance-reasoning {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.focus-timer-clock-wrap {
+  margin: 10px 0 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.focus-countdown-display {
+  font-family: var(--font-mono);
+  font-size: clamp(68px, 15vw, 128px);
+  font-weight: 500;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: var(--text-ink);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  transition: color var(--transition-smooth);
+  user-select: none;
+}
+
+.focus-countdown-display.overtime {
+  color: var(--accent-terracotta) !important;
+  animation: pulse-overtime 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-overtime {
+  0% { opacity: 0.92; filter: drop-shadow(0 0 0 rgba(168, 73, 45, 0)); }
+  100% { opacity: 1; filter: drop-shadow(0 0 16px rgba(168, 73, 45, 0.3)); }
+}
+
+.focus-timer-status {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.focus-timer-status.overtime {
+  color: var(--accent-terracotta) !important;
+  background-color: var(--accent-terracotta-soft);
+  border: 1px solid var(--accent-terracotta-border);
+  font-weight: 600;
+}
+
+.focus-timer-adjust-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  align-items: center;
+  justify-content: center;
+}
+
+.focus-adjust-btn {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.focus-adjust-btn:hover {
+  border-color: var(--border-focus);
+  color: var(--text-ink);
+  background-color: var(--bg-subtle);
+}
+
+.focus-pause-btn {
+  min-width: 90px;
+}
+
+.focus-timer-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: 18px;
+}
+
+.focus-action-btn-primary {
+  flex: 1;
+  padding: 13px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-subtle);
+  cursor: pointer;
+}
+
+.focus-action-btn-secondary {
+  flex: 1;
+  padding: 13px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.focus-timer-footnote {
+  font-size: 11px;
+  color: var(--text-muted);
+  max-width: 480px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .fullscreen-focus-overlay {
+    padding: 16px 20px;
+  }
+  .focus-timer-actions {
+    flex-direction: column;
+  }
+  .focus-task-title {
+    font-size: 24px;
+  }
+}
+
