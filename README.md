@@ -11,10 +11,10 @@ Students and self-directed knowledge workers, particularly neurodivergent indivi
 
 ### What makes it painful?
 Traditional productivity apps fail because they force the user to **manage the app itself**:
-1. **Window-Switching Paralysis**: Switching between 3 separate windows (PDF viewer, to-do list, scratchpad notes) breaks focus every 2 minutes. For someone with ADHD, tab switching is where attention is permanently lost.
-2. **Dense Academic Overload**: Opening a 15-page PDF causes instant cognitive freeze. Summarizing the whole PDF does not solve the assignment questions.
-3. **Blank Page Paralysis**: Staring at an empty notes document without knowing the first formula or step leads to hours of procrastination.
-4. **Context Loss on Interruption**: When an interruption happens (lunch, phone call, tab switch), recovering context requires 15 minutes of re-orientation friction—leading to abandoned study sessions.
+1. **Window-Switching Paralysis**: Switching between 3 separate windows (PDF viewer, to-do list, scratchpad notes) breaks focus every 2 minutes. For someone with ADHD, tab switching is where attention is permanently lost
+2. **Dense Academic Overload**: Opening a 15-page PDF causes instant cognitive freeze. Summarizing the whole PDF does not solve the assignment questions
+3. **Blank Page Paralysis**: Staring at an empty notes document without knowing the first formula or step leads to hours of procrastination
+4. **Context Loss on Interruption**: When an interruption happens (lunch, phone call, tab switch), recovering context requires 15 minutes of re-orientation friction—leading to abandoned study sessions
 
 ---
 
