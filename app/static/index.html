@@ -1,154 +1,167 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusMate Local — The Guided Work Desk (ADHD & Deep Work)</title>
-  <meta name="description" content="All-in-One Guided Study & Work Desk powered by 100% offline local inference. Reduces ADHD executive dysfunction with atomic question chunking, instant scaffolding, and mental breadcrumbs.">
+  <title>FocusMate Local — The Guided Work Desk</title>
+  <meta name="description" content="A quiet, single-window study desk designed for deep focus and ADHD clarity. Powered 100% offline by on-device local AI.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <!-- ========================================================================
-       Top Navigation & Local AI System Bar
+       Top Navigation & System Status
        ======================================================================== -->
   <header class="top-nav">
     <div class="nav-brand">
-      <div class="brand-icon">⚡</div>
+      <div class="brand-monogram">F</div>
       <div class="brand-title">
         FocusMate Local
-        <span class="brand-badge">100% Offline AI</span>
+        <span class="brand-badge">Offline Local AI</span>
       </div>
     </div>
 
     <div class="nav-center-status">
-      <div class="status-pill" id="ollama-status-pill" title="Local Inference Agent Status">
-        <span class="status-indicator" id="ollama-indicator"></span>
-        <span id="ollama-status-text">Detecting Local Model...</span>
+      <div class="status-badge" id="ollama-status-badge" title="Local Inference Agent">
+        <span class="status-dot" id="ollama-dot"></span>
+        <span id="ollama-model-text">Ollama: qwen2.5:1.5b</span>
       </div>
-      <div class="hardware-pill" title="Verified Team Hardware Specs">
-        <span>🎮 RTX 4060 (8GB) | i7-14650HX | 24GB RAM</span>
+      <div class="status-badge" title="Hardware Verified">
+        <span>RTX 5060 (8GB) | i7-14650HX | 24GB RAM</span>
       </div>
-      <div class="status-pill" id="speed-meter" title="Benchmark Tie-Breaker Metric">
-        <span>⚡ Speed: <strong id="speed-value">Local</strong></span>
+      <div class="status-badge" title="Tokens per second">
+        <span>Speed: <strong id="speed-meter-val">~80 tok/s</strong></span>
       </div>
     </div>
 
     <div class="nav-actions">
-      <button class="btn btn-secondary" id="btn-open-benchmark" title="Run Hackathon 3 Repeat Benchmark">
-        📊 Run 3-Run Benchmark
+      <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
+        🌓
       </button>
-      <button class="btn btn-secondary" id="btn-open-later-drawer" title="View Parked Reminders">
-        📥 Later Drawer <span class="drawer-badge" id="later-drawer-count">0</span>
+      <button class="btn btn-secondary" id="btn-open-later-drawer" title="Parked Reminders">
+        Later Drawer <span class="card-step-badge" id="later-count-badge">0</span>
       </button>
-      <button class="btn btn-secondary" id="btn-export-session" title="Export Completed Assignment">
-        📋 Export
+      <button class="btn btn-secondary" id="btn-open-benchmark" title="Run 3 Repeat Benchmark">
+        Benchmark
       </button>
-      <button class="btn btn-primary" id="btn-catchall-toggle" title="Universal Brain Dump">
-        + New Intake
+      <button class="btn btn-secondary" id="btn-export-session" title="Export Solution">
+        Export
+      </button>
+      <button class="btn btn-primary" id="btn-catchall-toggle" title="Universal Intake">
+        New Session
       </button>
     </div>
   </header>
 
   <!-- ========================================================================
-       Main Workspace Container
+       Main Workspace Desk
        ======================================================================== -->
   <main class="desk-container">
 
     <!-- ----------------------------------------------------------------------
-         SCREEN 1: Universal Catch-All (Intake Box)
+         PILLAR 1: Universal Catch-All (Intake Screen)
          ---------------------------------------------------------------------- -->
     <section class="catchall-hero" id="catchall-section">
-      <h1 class="catchall-tagline">Your Session GPS: Dump Everything in One Box</h1>
+      <div class="catchall-eyebrow">The Guided Work Desk</div>
+      <h1 class="catchall-tagline">
+        One quiet space for <em>all your thoughts.</em>
+      </h1>
       <p class="catchall-subtext">
-        Drop your assignment PDF and messy thoughts together. FocusMate separates immediate study from later reminders, parks distractions safely, and guides you one step at a time.
+        Drop your assignment PDF and type your scattered thoughts together. FocusMate separates immediate study from later errands, parks distractions safely, and guides you one problem at a time.
       </p>
 
-      <div class="catchall-box">
+      <div class="catchall-card">
         <textarea 
           id="catchall-input" 
           class="catchall-textarea" 
-          placeholder="e.g. Finish EEE Lab Assignment 4 by 6 PM, buy notebook and highlighters, call mom, revise resonance formulas in Chapter 2, pay bill..."
+          placeholder="Type or dictate your messy thoughts here (e.g. Finish EEE assignment by 6 PM, go gym, eat dinner, call mom, revise resonance formulas...)"
         ></textarea>
 
-        <div class="catchall-dropzone" id="pdf-dropzone">
-          <div class="dropzone-icon">📄</div>
-          <div class="dropzone-label">
-            <strong>Drop Assignment PDF here</strong> or click to browse
-          </div>
+        <div class="dropzone-box" id="pdf-dropzone">
+          <div class="dropzone-title">Drop Assignment PDF Here</div>
+          <div class="dropzone-desc">or click to browse from your computer</div>
           <input type="file" id="pdf-file-input" accept=".pdf" style="display:none;">
-          <div id="pdf-file-name" style="font-size: 12px; color: var(--accent-teal); margin-top: 6px; font-weight: 600;"></div>
+          <div id="pdf-file-name" style="font-size: 12px; color: var(--accent-terracotta); margin-top: 6px; font-weight: 600;"></div>
         </div>
 
         <div class="catchall-footer">
-          <div class="catchall-helpers">
-            <span class="quick-pill" id="pill-sample-dump">💡 Try Sample Brain Dump</span>
-            <span class="quick-pill" id="pill-sample-pdf">📑 Load EEE Assignment 4 (Sample PDF)</span>
-            <span class="quick-pill" id="pill-mic-dictate">🎙️ Voice Dictate</span>
+          <div class="helper-pills">
+            <span class="soft-pill" id="pill-sample-dump">💡 Try Mixed Brain Dump</span>
+            <span class="soft-pill" id="pill-sample-pdf">📑 Load EEE Lab 4 (Sample PDF)</span>
+            <span class="soft-pill" id="pill-mic-dictate">🎙️ Dictate</span>
           </div>
-          <button class="btn btn-primary" id="btn-parse-and-launch" style="padding: 10px 20px; font-size: 14px;">
-            🚀 Auto-Sort & Open Guided Desk
+          <button class="btn btn-primary" id="btn-parse-and-launch" style="padding: 9px 20px;">
+            Set Up Guided Desk →
           </button>
         </div>
       </div>
     </section>
 
     <!-- ----------------------------------------------------------------------
-         SCREEN 2: Single-Window Guided Study Desk (Reader + Scratchpad)
+         PILLAR 2: Single-Window Guided Study Desk (Reader + Scratchpad)
          ---------------------------------------------------------------------- -->
     <section class="desk-workspace" id="study-desk-section" style="display: none;">
       
       <!-- Top Breadcrumb Ribbon -->
-      <div class="desk-breadcrumb-bar">
-        <div class="breadcrumb-trail">
-          <span id="desk-session-title">Assignment</span>
+      <div class="desk-ribbon">
+        <div class="ribbon-left">
+          <span class="ribbon-session-name" id="desk-session-title">Assignment</span>
           <span>›</span>
-          <span class="breadcrumb-active" id="desk-active-step-label">Question 1 of 4</span>
+          <span class="ribbon-active-step" id="desk-active-step-label">Question 1 of 4</span>
         </div>
 
-        <div class="desk-progress-container">
-          <span class="progress-text" id="desk-progress-percentage">0% Complete</span>
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" id="desk-progress-fill" style="width: 0%;"></div>
+        <div class="ribbon-right">
+          <span style="font-size: 12px; color: var(--text-secondary);" id="desk-progress-percentage">0% Complete</span>
+          <div class="progress-track">
+            <div class="progress-fill" id="desk-progress-fill" style="width: 0%;"></div>
           </div>
-          <span class="quick-pill" id="btn-manual-resume" style="margin-left: 10px;">💾 Mental Breadcrumb</span>
+          <button class="btn btn-secondary" id="btn-manual-resume" style="font-size: 12px; padding: 4px 10px;">
+            Mental Breadcrumb
+          </button>
         </div>
       </div>
 
-      <!-- Split Desk Panels -->
-      <div class="desk-split-panels">
+      <!-- Mobile Tab Switcher (Visible only on mobile devices) -->
+      <div class="mobile-desk-tabs">
+        <button class="mobile-tab-btn active" id="tab-mobile-reader">📖 Question</button>
+        <button class="mobile-tab-btn" id="tab-mobile-scratchpad">✍️ Scratchpad</button>
+      </div>
 
-        <!-- LEFT SIDE: Bite-Sized Reader -->
-        <article class="panel-card" id="left-reader-panel">
-          <div class="panel-header">
-            <div class="panel-title">
-              <span>📖 The Bite-Sized Reader</span>
-              <span class="panel-title-badge" id="reader-step-badge">Step 1</span>
+      <!-- Split Desk Grid -->
+      <div class="desk-split-grid">
+
+        <!-- LEFT PANEL: The Bite-Sized Reader -->
+        <article class="desk-card" id="left-reader-card">
+          <div class="desk-card-header">
+            <div class="desk-card-title">
+              <span>The Bite-Sized Reader</span>
+              <span class="card-step-badge" id="reader-step-badge">Step 1 of 4</span>
             </div>
-            <div style="font-size: 11px; color: var(--text-secondary);" id="reader-est-time">
+            <div style="font-size: 12px; color: var(--text-muted);" id="reader-est-time">
               ⏱️ ~10 min focus
             </div>
           </div>
 
-          <div class="reader-body">
-            <h2 class="reader-question-title" id="reader-question-title">Loading Question...</h2>
-            
-            <div class="reader-meta-row">
-              <span class="reader-meta-pill" id="reader-source-pill">📄 Source: PDF</span>
-              <span class="reader-meta-pill">🧠 1 Atomic Task at a Time</span>
+          <div class="reader-scrollable">
+            <h2 class="reader-question-heading" id="reader-question-title">Loading Question...</h2>
+
+            <!-- Extracted Given Parameters Pill Box -->
+            <div class="given-parameters-box" id="given-params-container" style="display: none;">
+              <span class="given-label">Identified Given Values:</span>
+              <div id="given-params-list" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
             </div>
 
-            <div class="reader-content-box" id="reader-question-body">
-              Question text will appear here cleanly without page scrolling.
+            <div class="reader-text-block" id="reader-question-body">
+              Question text will appear here cleanly.
             </div>
           </div>
 
-          <div class="panel-footer-stepper">
+          <div class="desk-card-footer">
             <button class="btn btn-secondary" id="btn-prev-question">
-              ← Previous Question
+              ← Previous
             </button>
             <button class="btn btn-accent" id="btn-mark-completed">
-              ✓ Mark Done & Next
+              ✓ Mark Complete & Next
             </button>
             <button class="btn btn-secondary" id="btn-next-question">
               Next Question →
@@ -156,80 +169,93 @@
           </div>
         </article>
 
-        <!-- RIGHT SIDE: Active Scratchpad & Unstick Helper -->
-        <section class="panel-card" id="right-scratchpad-panel">
-          <div class="panel-header">
-            <div class="panel-title">
-              <span>✍️ Active Scratchpad</span>
+        <!-- RIGHT PANEL: Active Scratchpad & Unstick Helper -->
+        <section class="desk-card" id="right-scratchpad-card">
+          <div class="desk-card-header">
+            <div class="desk-card-title">
+              <span>Active Scratchpad</span>
             </div>
-            
-            <div class="scratchpad-toolbar">
-              <button class="btn btn-unstick" id="btn-unstick-trigger" title="Instant plain English & fill-in-blank starter">
+
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-secondary" id="btn-check-thinking" style="font-size: 12px; padding: 5px 10px;" title="Check if you're on the right track">
+                💬 Am I on track?
+              </button>
+              <button class="btn btn-unstick" id="btn-unstick-trigger" title="Scaffolded fill-in-the-blank starter">
                 ✨ Make This Easier
               </button>
             </div>
           </div>
 
-          <!-- Quick Math/Step Chips -->
-          <div style="background: var(--bg-tertiary); padding: 6px 16px; border-bottom: 1px solid var(--border-subtle); display: flex; gap: 6px; align-items: center; overflow-x: auto;">
-            <span style="font-size: 11px; color: var(--text-muted); margin-right: 4px;">Insert:</span>
-            <span class="tool-chip" data-insert="Given: ">Given</span>
-            <span class="tool-chip" data-insert="Formula: ">Formula</span>
-            <span class="tool-chip" data-insert="Calculation: ">Calculation</span>
-            <span class="tool-chip" data-insert="Therefore, Answer = ">Final Answer</span>
-            <span class="tool-chip" data-insert="ω = 2 * π * f">ω = 2πf</span>
-            <span class="tool-chip" data-insert="Z = √(R² + (XL - XC)²)">RLC Impedance</span>
+          <!-- Quick Math & Formula Chips -->
+          <div class="scratchpad-quick-toolbar">
+            <span style="font-size: 11px; color: var(--text-muted);">Quick Insert:</span>
+            <span class="formula-chip" data-insert="1. Given Parameters: ">Given</span>
+            <span class="formula-chip" data-insert="2. Formula: ">Formula</span>
+            <span class="formula-chip" data-insert="3. Calculation: ">Calculation</span>
+            <span class="formula-chip" data-insert="Therefore, Answer = ">Final Ans</span>
+            <span class="formula-chip" data-insert="ω = 2 * π * f">ω = 2πf</span>
+            <span class="formula-chip" data-insert="f₀ = 1 / (2 * π * √(L * C))">f₀ = 1/(2π√LC)</span>
+            <span class="formula-chip" data-insert="Z = √(R² + (X_L - X_C)²)">Z = √(R²+(XL-XC)²)</span>
           </div>
 
-          <!-- Active Textarea -->
-          <div class="scratchpad-container">
+          <!-- Editor Area -->
+          <div class="scratchpad-editor-area">
             <textarea 
               id="scratchpad-textarea" 
               class="scratchpad-textarea" 
-              placeholder="Type your notes, formulas, or working steps here. Automatically saved to your local mental breadcrumbs on every keystroke..."
+              placeholder="Solve your problem here. Your progress and mental breadcrumb are saved on every keystroke..."
             ></textarea>
 
-            <!-- Inline "Unstick Me" Scaffolding Drawer -->
+            <!-- Inline Scaffolding Drawer -->
             <div class="unstick-drawer hidden" id="unstick-drawer">
-              <div class="unstick-header">
-                <div class="unstick-tabs">
-                  <button class="unstick-tab active" data-tab="tab-template">📝 Fill-in-Blank Starter</button>
-                  <button class="unstick-tab" data-tab="tab-eli5">💡 Plain English (ELI5)</button>
-                  <button class="unstick-tab" data-tab="tab-micro">🪜 3 Micro-Steps</button>
-                </div>
-                <button class="btn btn-secondary" id="btn-close-unstick" style="padding: 2px 8px; font-size: 11px;">✕</button>
+              <div class="unstick-tabs-bar">
+                <button class="unstick-tab-btn active" data-tab="tab-template">Fill-in-Blank Starter</button>
+                <button class="unstick-tab-btn" data-tab="tab-eli5">Plain English Translation</button>
+                <button class="unstick-tab-btn" data-tab="tab-micro">3 Micro-Steps</button>
+                <button class="btn btn-secondary" id="btn-close-unstick" style="margin-left: auto; padding: 2px 8px; font-size: 11px;">✕</button>
               </div>
 
               <!-- Tab 1: Fill in the blank -->
-              <div class="unstick-content" id="tab-template-content">
-                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">
-                  Don't start with a blank page! Click below to inject this starter structure:
+              <div id="tab-template-content">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">
+                  Pre-filled template tailored for this problem:
                 </div>
-                <div class="unstick-template-box" id="template-text-display">Loading starter template...</div>
-                <button class="btn btn-accent" id="btn-insert-template" style="font-size: 11px; padding: 4px 10px;">
+                <div class="template-code-box" id="template-text-display">Loading starter template...</div>
+                <button class="btn btn-accent" id="btn-insert-template" style="font-size: 12px; padding: 4px 12px;">
                   📥 Inject into Scratchpad
                 </button>
               </div>
 
               <!-- Tab 2: Plain English -->
-              <div class="unstick-content hidden" id="tab-eli5-content">
-                <div id="eli5-text-display" style="background: var(--bg-primary); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); color: #7ee787;">
-                  Loading everyday explanation...
+              <div class="hidden" id="tab-eli5-content">
+                <div id="eli5-text-display" style="background-color: var(--bg-surface); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-hairline); font-size: 13px; line-height: 1.6;">
+                  Loading plain English breakdown...
                 </div>
               </div>
 
-              <!-- Tab 3: Micro-steps -->
-              <div class="unstick-content hidden" id="tab-micro-content">
-                <ul id="micro-steps-list" style="list-style: none; padding: 4px 0;">
-                  <!-- Checkable micro items -->
-                </ul>
+              <!-- Tab 3: Micro steps -->
+              <div class="hidden" id="tab-micro-content">
+                <ul id="micro-steps-list" style="list-style: none; padding: 4px 0;"></ul>
               </div>
+            </div>
+
+            <!-- Thinking Feedback Toast / Card -->
+            <div id="thinking-feedback-card" style="display: none; background-color: var(--bg-subtle); border-top: 1px solid var(--border-medium); padding: 12px 18px; font-size: 13px; line-height: 1.5; color: var(--text-ink);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                <strong style="color: var(--accent-sage);">FocusMate Tutor:</strong>
+                <button id="btn-close-thinking" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">✕</button>
+              </div>
+              <div id="thinking-feedback-text"></div>
             </div>
           </div>
 
-          <div class="scratchpad-footer">
-            <span id="scratchpad-autosave-status">💾 Auto-saved to local memory</span>
-            <span id="scratchpad-char-count">0 words</span>
+          <div class="desk-card-footer">
+            <span style="font-size: 11px; color: var(--text-muted);" id="scratchpad-autosave-status">
+              Saved locally
+            </span>
+            <span style="font-size: 11px; color: var(--text-muted);" id="scratchpad-char-count">
+              0 words
+            </span>
           </div>
         </section>
 
@@ -239,83 +265,77 @@
   </main>
 
   <!-- ========================================================================
-       MODAL 1: Later Drawer (Parked Errands & Low-Guilt Parking Lot)
+       MODAL 1: Later Drawer (Parked Reminders)
        ======================================================================== -->
-  <div class="modal-overlay hidden" id="modal-later-drawer">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title">
-          <span>📥 Later Drawer (Worry-Free Parking)</span>
-        </div>
-        <button class="btn btn-secondary" id="btn-close-later-modal">✕</button>
+  <div class="modal-backdrop hidden" id="modal-later-drawer">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <div class="modal-sheet-title">Later Drawer</div>
+        <button class="btn btn-secondary" id="btn-close-later-modal" style="padding: 4px 10px;">✕</button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-sheet-body">
         <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
-          These tasks were extracted from your brain dump. They are safely saved so you won't forget them while focusing on your assignment.
+          These tasks were extracted from your intake dump and safely parked so they don't occupy your mental RAM.
         </p>
 
         <div id="later-drawer-items-list">
-          <div style="color: var(--text-muted); font-size: 13px;">No later items parked yet.</div>
+          <div style="color: var(--text-muted); font-size: 13px;">No later items parked.</div>
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="btn-add-quick-later">+ Quick Task</button>
-        <button class="btn btn-primary" id="btn-done-later-modal">Back to Study Desk</button>
+      <div class="modal-sheet-footer">
+        <button class="btn btn-secondary" id="btn-add-quick-later">+ Add Quick Note</button>
+        <button class="btn btn-primary" id="btn-done-later-modal">Back to Desk</button>
       </div>
     </div>
   </div>
 
   <!-- ========================================================================
-       MODAL 2: The Resume Card (Automatic Mental Breadcrumb Recovery)
+       MODAL 2: The Resume Card (Mental Breadcrumb Recovery)
        ======================================================================== -->
-  <div class="modal-overlay hidden" id="modal-resume-card">
-    <div class="modal-card" style="max-width: 580px; border-color: var(--accent-teal);">
-      <div class="modal-header">
-        <div class="modal-title">
-          <span>🧭 Welcome Back: Mental Breadcrumb</span>
-        </div>
+  <div class="modal-backdrop hidden" id="modal-resume-card">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <div class="modal-sheet-title">Welcome Back: Mental Breadcrumb</div>
       </div>
 
-      <div class="modal-body">
-        <div class="resume-hero-icon">⚡</div>
-        <h3 style="font-size: 17px; margin-bottom: 6px;">Zero re-orientation friction</h3>
-        <p style="font-size: 13px; color: var(--text-secondary);">
-          You stepped away, but FocusMate kept your exact mental state safely pinned.
+      <div class="modal-sheet-body">
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 18px;">
+          Zero re-orientation friction. Pick up right where you paused without wondering what to do next.
         </p>
 
-        <div class="resume-highlight-box">
-          <div class="resume-label">Completed Before Your Pause</div>
-          <div class="resume-value" id="resume-completed-val">Questions 1 & 2 (100% saved)</div>
+        <div class="resume-state-card">
+          <div class="resume-state-label">Completed Before Your Pause</div>
+          <div class="resume-state-val" id="resume-completed-val">Questions 1 & 2 (100% saved)</div>
         </div>
 
-        <div class="resume-highlight-box" style="border-left-color: var(--accent-purple);">
-          <div class="resume-label">Where You Stopped</div>
-          <div class="resume-value" id="resume-stopped-val">Question 3: Impedance Calculation</div>
+        <div class="resume-state-card" style="border-left-color: var(--accent-terracotta);">
+          <div class="resume-state-label">Where You Stopped</div>
+          <div class="resume-state-val" id="resume-stopped-val">Question 3: Impedance Calculation</div>
           <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;" id="resume-notes-snippet">
             "Frequency = 50Hz, R = 10 ohm..."
           </div>
         </div>
 
-        <div class="resume-highlight-box" style="border-left-color: var(--accent-amber);">
-          <div class="resume-label">Next 3-Minute Micro-Action</div>
-          <div class="resume-value" id="resume-next-action-val">
-            Fill in Step 2 calculation line in your scratchpad.
+        <div class="resume-state-card" style="border-left-color: var(--accent-ochre);">
+          <div class="resume-state-label">Next 3-Minute Micro-Action</div>
+          <div class="resume-state-val" id="resume-next-action-val">
+            Fill in the formula line in your scratchpad.
           </div>
         </div>
       </div>
 
-      <div class="modal-footer" style="justify-content: space-between;">
+      <div class="modal-sheet-footer" style="justify-content: space-between;">
         <button class="btn btn-secondary" id="btn-resume-switch-light" title="Energy-based rerouting">
-          🔄 Switch to a Lighter Task
+          🔄 Switch to Lighter Task
         </button>
         <div style="display: flex; gap: 8px;">
-          <button class="btn btn-unstick" id="btn-resume-unstick">
-            ✨ Make Easier
+          <button class="btn btn-accent" id="btn-resume-unstick">
+            Simplify Step
           </button>
           <button class="btn btn-primary" id="btn-resume-continue">
-            🚀 Continue
+            Continue Working →
           </button>
         </div>
       </div>
@@ -323,77 +343,73 @@
   </div>
 
   <!-- ========================================================================
-       MODAL 3: Hackathon 3 Repeat Benchmark Runner
+       MODAL 3: Benchmark Runner
        ======================================================================== -->
-  <div class="modal-overlay hidden" id="modal-benchmark">
-    <div class="modal-card" style="max-width: 680px;">
-      <div class="modal-header">
-        <div class="modal-title">
-          <span>📊 Local Inference Benchmark (3 Repeat Runs)</span>
-        </div>
+  <div class="modal-backdrop hidden" id="modal-benchmark">
+    <div class="modal-sheet" style="max-width: 640px;">
+      <div class="modal-sheet-header">
+        <div class="modal-sheet-title">Local GPU Inference Benchmark</div>
         <button class="btn btn-secondary" id="btn-close-benchmark-modal">✕</button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-sheet-body">
         <p style="font-size: 13px; color: var(--text-secondary);">
-          Measures offline on-device inference speed (tokens/sec) across 3 standardized workflows on team hardware (RTX 4060 + i7-14650HX).
+          Tests on-device inference speed (tokens/sec) across 3 repeat runs on your <strong>NVIDIA RTX 5060 Laptop GPU</strong>.
         </p>
 
         <div style="margin: 16px 0; text-align: center;">
           <button class="btn btn-primary" id="btn-run-benchmark-now">
-            ▶️ Run 3-Run Benchmark Now
+            ▶️ Run 3-Run Benchmark
           </button>
         </div>
 
         <div id="benchmark-results-container" style="display: none;">
-          <table class="benchmark-table">
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px;">
             <thead>
-              <tr>
-                <th>Run</th>
-                <th>Task</th>
-                <th>Latency</th>
-                <th>Throughput</th>
-                <th>Result</th>
+              <tr style="border-bottom: 1px solid var(--border-medium); text-align: left;">
+                <th style="padding: 6px;">Run</th>
+                <th style="padding: 6px;">Workflow</th>
+                <th style="padding: 6px;">Latency</th>
+                <th style="padding: 6px;">Throughput</th>
+                <th style="padding: 6px;">Status</th>
               </tr>
             </thead>
             <tbody id="benchmark-table-body"></tbody>
           </table>
 
-          <div style="margin-top: 16px; padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-md); font-size: 12px; line-height: 1.6;">
-            <div><strong>Avg Speed (Tie-Breaker):</strong> <span id="bm-avg-speed" style="color: var(--accent-teal); font-weight: 700;">-</span></div>
-            <div><strong>Success Rate:</strong> <span id="bm-success-rate" style="color: var(--text-success); font-weight: 700;">-</span></div>
+          <div style="margin-top: 16px; padding: 12px; background: var(--bg-subtle); border-radius: var(--radius-md); font-size: 12px; line-height: 1.6;">
+            <div><strong>Avg Speed:</strong> <span id="bm-avg-speed" style="color: var(--accent-sage); font-weight: 700;">-</span></div>
+            <div><strong>Task Success Rate:</strong> <span id="bm-success-rate" style="font-weight: 700;">-</span></div>
             <div><strong>Model / Runtime:</strong> <span id="bm-model-runtime">-</span></div>
           </div>
         </div>
       </div>
 
-      <div class="modal-footer">
+      <div class="modal-sheet-footer">
         <button class="btn btn-secondary" id="btn-done-benchmark">Close</button>
       </div>
     </div>
   </div>
 
   <!-- ========================================================================
-       MODAL 4: Export Session Submission Report
+       MODAL 4: Export Session
        ======================================================================== -->
-  <div class="modal-overlay hidden" id="modal-export">
-    <div class="modal-card" style="max-width: 680px;">
-      <div class="modal-header">
-        <div class="modal-title">
-          <span>📋 Export Assignment Submission</span>
-        </div>
+  <div class="modal-backdrop hidden" id="modal-export">
+    <div class="modal-sheet" style="max-width: 640px;">
+      <div class="modal-sheet-header">
+        <div class="modal-sheet-title">Export Assignment Solution</div>
         <button class="btn btn-secondary" id="btn-close-export-modal">✕</button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-sheet-body">
         <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-          Clean compiled Markdown document containing all questions and your answers:
+          Clean compiled Markdown document ready for submission:
         </p>
-        <textarea id="export-markdown-content" style="width: 100%; height: 260px; background: var(--bg-primary); color: #7ee787; font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; resize: vertical;"></textarea>
+        <textarea id="export-markdown-content" style="width: 100%; height: 260px; background: var(--bg-canvas); color: var(--text-ink); font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--border-hairline); border-radius: var(--radius-md); padding: 12px; resize: vertical;"></textarea>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-accent" id="btn-copy-export">Copy to Clipboard</button>
+      <div class="modal-sheet-footer">
+        <button class="btn btn-secondary" id="btn-copy-export">Copy to Clipboard</button>
         <button class="btn btn-primary" id="btn-download-export">Download .md</button>
       </div>
     </div>

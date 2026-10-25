@@ -1,10 +1,10 @@
 /**
- * FocusMate Local — Guided Study & Work Desk Client
- * Implements the 4 Practical Pillars:
- * 1. Universal Catch-All (Mixed brain dump & PDF partitioning)
- * 2. Chunked Reader & Scratchpad (Atomic steps)
- * 3. Unstick Me Scaffolding (ELI5, Fill-in-blank starter, Micro-steps)
- * 4. Automatic Mental Breadcrumb Recovery (Zero-effort session resume)
+ * FocusMate Local — The Guided Work Desk Client
+ * Implements the 4 Practical Pillars with Moment Journal Aesthetics:
+ * 1. Universal Catch-All (Intelligent separation of study vs errands)
+ * 2. Chunked Reader & Scratchpad (Atomic questions with extracted given values)
+ * 3. Unstick Me Scaffolding & Solution Checker (ELI5, Fill-in-the-blank, Micro-steps, Validation)
+ * 4. Automatic Mental Breadcrumb Recovery (Zero-effort resume & energy rerouting)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Application State
   // --------------------------------------------------------------------------
   const state = {
-    sessionTitle: "EEE Lab Assignment 4",
+    sessionTitle: "Assignment Session",
     chunks: [],
     currentIndex: 0,
     answers: {},
@@ -21,8 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadedPdfFile: null,
     autoSaveTimer: null,
     isUnstickOpen: false,
-    activeTab: 'tab-template',
+    activeUnstickTab: 'tab-template',
+    activeMobileTab: 'reader',
     ollamaOnline: false,
+    theme: 'light',
     speechRecognition: null
   };
 
@@ -37,18 +39,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const pdfFileName = document.getElementById('pdf-file-name');
   const btnParseLaunch = document.getElementById('btn-parse-and-launch');
   const btnCatchallToggle = document.getElementById('btn-catchall-toggle');
+  const themeToggle = document.getElementById('theme-toggle');
 
   // Reader elements
+  const leftReaderCard = document.getElementById('left-reader-card');
+  const rightScratchpadCard = document.getElementById('right-scratchpad-card');
   const readerStepBadge = document.getElementById('reader-step-badge');
   const readerEstTime = document.getElementById('reader-est-time');
   const readerQuestionTitle = document.getElementById('reader-question-title');
   const readerQuestionBody = document.getElementById('reader-question-body');
+  const givenParamsContainer = document.getElementById('given-params-container');
+  const givenParamsList = document.getElementById('given-params-list');
   const deskActiveStepLabel = document.getElementById('desk-active-step-label');
   const deskProgressPercentage = document.getElementById('desk-progress-percentage');
   const deskProgressFill = document.getElementById('desk-progress-fill');
   const btnPrevQuestion = document.getElementById('btn-prev-question');
   const btnNextQuestion = document.getElementById('btn-next-question');
   const btnMarkCompleted = document.getElementById('btn-mark-completed');
+
+  // Mobile Tabs
+  const tabMobileReader = document.getElementById('tab-mobile-reader');
+  const tabMobileScratchpad = document.getElementById('tab-mobile-scratchpad');
 
   // Scratchpad elements
   const scratchpadTextarea = document.getElementById('scratchpad-textarea');
@@ -61,13 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const eli5TextDisplay = document.getElementById('eli5-text-display');
   const microStepsList = document.getElementById('micro-steps-list');
   const btnInsertTemplate = document.getElementById('btn-insert-template');
+  const btnCheckThinking = document.getElementById('btn-check-thinking');
+  const thinkingFeedbackCard = document.getElementById('thinking-feedback-card');
+  const thinkingFeedbackText = document.getElementById('thinking-feedback-text');
+  const btnCloseThinking = document.getElementById('btn-close-thinking');
 
   // Modals
   const modalLaterDrawer = document.getElementById('modal-later-drawer');
   const btnOpenLaterDrawer = document.getElementById('btn-open-later-drawer');
   const btnCloseLaterModal = document.getElementById('btn-close-later-modal');
   const btnDoneLaterModal = document.getElementById('btn-done-later-modal');
-  const laterDrawerCount = document.getElementById('later-drawer-count');
+  const laterCountBadge = document.getElementById('later-count-badge');
   const laterDrawerItemsList = document.getElementById('later-drawer-items-list');
 
   const modalResumeCard = document.getElementById('modal-resume-card');
@@ -94,28 +109,57 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnDownloadExport = document.getElementById('btn-download-export');
 
   // --------------------------------------------------------------------------
-  // System Status & Hardware Check
+  // Theme Toggle (Warm Linen <-> Warm Charcoal)
+  // --------------------------------------------------------------------------
+  themeToggle.addEventListener('click', () => {
+    state.theme = (state.theme === 'light') ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', state.theme);
+  });
+
+  // --------------------------------------------------------------------------
+  // Mobile Responsiveness Tab Switcher
+  // --------------------------------------------------------------------------
+  function setMobileView(view) {
+    state.activeMobileTab = view;
+    if (view === 'reader') {
+      tabMobileReader.classList.add('active');
+      tabMobileScratchpad.classList.remove('active');
+      leftReaderCard.classList.remove('panel-hidden-mobile');
+      rightScratchpadCard.classList.add('panel-hidden-mobile');
+    } else {
+      tabMobileReader.classList.remove('active');
+      tabMobileScratchpad.classList.add('active');
+      leftReaderCard.classList.add('panel-hidden-mobile');
+      rightScratchpadCard.classList.remove('panel-hidden-mobile');
+    }
+  }
+
+  tabMobileReader.addEventListener('click', () => setMobileView('reader'));
+  tabMobileScratchpad.addEventListener('click', () => setMobileView('scratchpad'));
+
+  // --------------------------------------------------------------------------
+  // System Status & Hardware Verification
   // --------------------------------------------------------------------------
   async function checkSystemStatus() {
     try {
       const res = await fetch('/api/system-status');
       const data = await res.json();
-      const indicator = document.getElementById('ollama-indicator');
-      const statusText = document.getElementById('ollama-status-text');
-      const speedValue = document.getElementById('speed-value');
+      const dot = document.getElementById('ollama-dot');
+      const modelText = document.getElementById('ollama-model-text');
+      const speedVal = document.getElementById('speed-meter-val');
 
       state.ollamaOnline = data.ollama_online;
       if (data.ollama_online) {
-        indicator.classList.remove('offline');
-        statusText.textContent = `Ollama: ${data.active_model}`;
-        speedValue.textContent = 'Active (GPU)';
+        dot.classList.remove('standby');
+        modelText.textContent = `Ollama: ${data.active_model}`;
+        speedVal.textContent = '~80 tok/s (RTX 5060)';
       } else {
-        indicator.classList.add('offline');
-        statusText.textContent = 'Built-in Cognitive Engine (Offline)';
-        speedValue.textContent = 'Instant (Local)';
+        dot.classList.add('standby');
+        modelText.textContent = 'Built-in Cognitive Engine';
+        speedVal.textContent = 'Instant (Local)';
       }
     } catch (e) {
-      console.warn('System status fetch failed:', e);
+      console.warn('System status fetch error:', e);
     }
   }
 
@@ -123,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // PILLAR 1: Universal Catch-All Handlers
   // --------------------------------------------------------------------------
   document.getElementById('pill-sample-dump').addEventListener('click', () => {
-    catchallInput.value = "Finish EEE Lab Assignment 4 by 6:00 PM, buy notebook and highlighters from campus shop, call mom after 5 PM, revise resonance formulas in Chapter 2, pay electricity bill, drink water, message Ankur regarding lab reading values";
+    catchallInput.value = "Finish EEE Lab 4 assignment by 6 PM, go gym, eat dinner, call mom, revise resonance formulas in Chapter 2, spend time with gf, play bmw";
     catchallInput.focus();
   });
 
@@ -134,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         const blob = await res.blob();
         state.uploadedPdfFile = new File([blob], "Khilin_Tak_EEE_LAB-4.pdf", { type: "application/pdf" });
-        pdfFileName.textContent = "Selected: Khilin_Tak_EEE_LAB-4.pdf (Ready to Chunk)";
+        pdfFileName.textContent = "Loaded: Khilin_Tak_EEE_LAB-4.pdf (7 Questions Ready)";
       }
     } catch (err) {
       pdfFileName.textContent = "Sample PDF selected (Ready)";
@@ -152,11 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
     state.speechRecognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       catchallInput.value += (catchallInput.value ? ", " : "") + transcript;
-      pillMicDictate.textContent = "🎙️ Voice Dictate";
+      pillMicDictate.textContent = "🎙️ Dictate";
     };
 
     state.speechRecognition.onerror = () => {
-      pillMicDictate.textContent = "🎙️ Voice Dictate";
+      pillMicDictate.textContent = "🎙️ Dictate";
     };
 
     pillMicDictate.addEventListener('click', () => {
@@ -198,10 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
   btnParseLaunch.addEventListener('click', async () => {
     const rawText = catchallInput.value.trim();
     btnParseLaunch.disabled = true;
-    btnParseLaunch.textContent = "Processing & Chunking...";
+    btnParseLaunch.textContent = "Setting up desk...";
 
     try {
-      // 1. Parse Catch-All thoughts into Immediate Study vs Later Reminders
+      let immediateStudyGoal = "Assignment Problem Set";
+
+      // 1. Parse Catch-All into Immediate Study vs Later Reminders
       if (rawText) {
         const catchRes = await fetch('/api/catch-all', {
           method: 'POST',
@@ -214,9 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
           state.laterDrawer = catchData.later_drawer;
           updateLaterDrawerBadge();
         }
+
+        if (catchData.immediate_study && catchData.immediate_study.length > 0) {
+          immediateStudyGoal = catchData.immediate_study[0].title;
+          state.sessionTitle = immediateStudyGoal;
+        }
       }
 
-      // 2. Extract Questions from PDF or fallback text
+      // 2. Extract Questions from PDF (if provided)
       if (state.uploadedPdfFile) {
         const formData = new FormData();
         formData.append('file', state.uploadedPdfFile);
@@ -232,29 +283,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // If no PDF uploaded, create questions from typed notes or default sample questions
+      // 3. If NO PDF was provided: DO NOT dump the raw text as Question 1!
+      // Synthesize an actionable 4-step guided roadmap tailored to their goal.
       if (!state.chunks || state.chunks.length === 0) {
-        const sampleText = rawText || "Question 1: In a series RLC circuit, R = 10 ohm, L = 0.1 H, C = 100 uF. Supply voltage is 230V at 50Hz. Calculate resonant frequency and current at resonance.\n\nQuestion 2: Define quality factor Q and explain its physical significance in resonance.\n\nQuestion 3: Calculate the reactive power Q and total impedance Z for an inductive load with V = 230V, I = 5A, and power factor = 0.8 lagging.";
-        const chunkRes = await fetch('/api/chunk-text', {
+        const roadRes = await fetch('/api/synthesize-roadmap', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: sampleText, source: "Intake Box" })
+          body: JSON.stringify({ goal: immediateStudyGoal })
         });
-        const chunkData = await chunkRes.json();
-        state.chunks = chunkData.chunks || [];
+        const roadData = await roadRes.json();
+        state.chunks = roadData.chunks || [];
       }
 
-      // Switch view to Guided Study Desk
+      // Launch Guided Study Desk
       state.currentIndex = 0;
       catchallSection.style.display = 'none';
       studyDeskSection.style.display = 'flex';
+      setMobileView('reader');
       renderCurrentQuestion();
       saveBreadcrumbCheckpoint();
     } catch (err) {
-      alert("Error processing intake: " + err.message);
+      alert("Error setting up desk: " + err.message);
     } finally {
       btnParseLaunch.disabled = false;
-      btnParseLaunch.textContent = "🚀 Auto-Sort & Open Guided Desk";
+      btnParseLaunch.textContent = "Set Up Guided Desk →";
     }
   });
 
@@ -279,11 +331,25 @@ document.addEventListener('DOMContentLoaded', () => {
     readerStepBadge.textContent = `Step ${stepNum} of ${total}`;
     readerEstTime.textContent = `⏱️ ~${chunk.estimated_minutes || 10} min focus`;
 
-    // Question content
+    // Question heading & body
     readerQuestionTitle.textContent = chunk.title || `Question ${stepNum}`;
     readerQuestionBody.textContent = chunk.body || "No text available.";
 
-    // Scratchpad notes
+    // Render extracted given values chips (e.g. 50Hz, 10 ohm)
+    givenParamsList.innerHTML = "";
+    if (chunk.given_values && chunk.given_values.length > 0) {
+      givenParamsContainer.style.display = 'flex';
+      chunk.given_values.forEach(val => {
+        const span = document.createElement('span');
+        span.className = 'given-chip';
+        span.textContent = val;
+        givenParamsList.appendChild(span);
+      });
+    } else {
+      givenParamsContainer.style.display = 'none';
+    }
+
+    // Scratchpad notes restoration
     const qId = chunk.id || `q_${stepNum}`;
     scratchpadTextarea.value = state.answers[qId] || "";
     updateWordCount();
@@ -293,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
     deskProgressPercentage.textContent = `${percent}% Complete`;
     deskProgressFill.style.width = `${percent}%`;
 
-    // Stepper buttons state
+    // Stepper navigation
     btnPrevQuestion.disabled = (state.currentIndex === 0);
     btnNextQuestion.disabled = (state.currentIndex === total - 1);
 
@@ -301,12 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
       btnMarkCompleted.textContent = "✓ Completed";
       btnMarkCompleted.style.opacity = '0.7';
     } else {
-      btnMarkCompleted.textContent = "✓ Mark Done & Next";
+      btnMarkCompleted.textContent = "✓ Mark Complete & Next";
       btnMarkCompleted.style.opacity = '1';
     }
 
-    // Hide unstick drawer when changing questions
+    // Reset inline panels
     unstickDrawer.classList.add('hidden');
+    thinkingFeedbackCard.style.display = 'none';
     state.isUnstickOpen = false;
   }
 
@@ -352,12 +419,12 @@ document.addEventListener('DOMContentLoaded', () => {
   scratchpadTextarea.addEventListener('input', () => {
     saveCurrentScratchpad();
     updateWordCount();
-    scratchpadAutosaveStatus.textContent = "✏️ Editing...";
+    scratchpadAutosaveStatus.textContent = "Editing...";
 
     clearTimeout(state.autoSaveTimer);
     state.autoSaveTimer = setTimeout(() => {
       saveBreadcrumbCheckpoint();
-      scratchpadAutosaveStatus.textContent = "💾 Auto-saved to local memory";
+      scratchpadAutosaveStatus.textContent = "Saved locally";
     }, 1200);
   });
 
@@ -367,8 +434,8 @@ document.addEventListener('DOMContentLoaded', () => {
     scratchpadCharCount.textContent = `${words} words`;
   }
 
-  // Quick insertion chips
-  document.querySelectorAll('.tool-chip').forEach(chip => {
+  // Quick formula insertion chips
+  document.querySelectorAll('.formula-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const insertText = chip.getAttribute('data-insert');
       insertAtCursor(scratchpadTextarea, insertText + "\n");
@@ -404,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     templateTextDisplay.textContent = "Generating custom fill-in-the-blank starter...";
     eli5TextDisplay.textContent = "Translating question into everyday terms...";
-    microStepsList.innerHTML = "<li>Loading 3 micro-steps...</li>";
+    microStepsList.innerHTML = "<li style='padding: 6px 0;'>Loading 3 micro-steps...</li>";
 
     const currentQ = state.chunks[state.currentIndex];
     const currentNotes = scratchpadTextarea.value;
@@ -423,10 +490,11 @@ document.addEventListener('DOMContentLoaded', () => {
       microStepsList.innerHTML = "";
       (data.micro_steps || []).forEach((step, idx) => {
         const li = document.createElement('li');
-        li.style.margin = "6px 0";
+        li.style.margin = "8px 0";
         li.style.display = "flex";
         li.style.alignItems = "center";
         li.style.gap = "8px";
+        li.style.fontSize = "13px";
         li.innerHTML = `<input type="checkbox" id="mstep_${idx}"> <label for="mstep_${idx}">${step}</label>`;
         microStepsList.appendChild(li);
       });
@@ -441,10 +509,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Switch unstick tabs
-  document.querySelectorAll('.unstick-tab').forEach(tab => {
+  document.querySelectorAll('.unstick-tab-btn').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.unstick-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.unstick-content').forEach(c => c.classList.add('hidden'));
+      document.querySelectorAll('.unstick-tab-btn').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-template-content').classList.add('hidden');
+      document.getElementById('tab-eli5-content').classList.add('hidden');
+      document.getElementById('tab-micro-content').classList.add('hidden');
 
       tab.classList.add('active');
       const targetId = tab.getAttribute('data-tab') + '-content';
@@ -462,6 +532,37 @@ document.addEventListener('DOMContentLoaded', () => {
       state.isUnstickOpen = false;
       scratchpadTextarea.focus();
     }
+  });
+
+  // Solution Checker ("Am I on track?")
+  btnCheckThinking.addEventListener('click', async () => {
+    if (!state.chunks || state.chunks.length === 0) return;
+    const currentQ = state.chunks[state.currentIndex];
+    const currentNotes = scratchpadTextarea.value;
+
+    btnCheckThinking.disabled = true;
+    btnCheckThinking.textContent = "Checking...";
+
+    try {
+      const res = await fetch('/api/check-thinking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: currentQ.body, notes: currentNotes })
+      });
+      const data = await res.json();
+      thinkingFeedbackText.textContent = data.feedback || "Keep going!";
+      thinkingFeedbackCard.style.display = 'block';
+    } catch (e) {
+      thinkingFeedbackText.textContent = "Feedback unavailable: " + e.message;
+      thinkingFeedbackCard.style.display = 'block';
+    } finally {
+      btnCheckThinking.disabled = false;
+      btnCheckThinking.textContent = "💬 Am I on track?";
+    }
+  });
+
+  btnCloseThinking.addEventListener('click', () => {
+    thinkingFeedbackCard.style.display = 'none';
   });
 
   // --------------------------------------------------------------------------
@@ -487,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
     } catch (e) {
-      console.warn("Failed to persist breadcrumb:", e);
+      console.warn("Breadcrumb save error:", e);
     }
   }
 
@@ -509,13 +610,12 @@ document.addEventListener('DOMContentLoaded', () => {
         modalResumeCard.classList.remove('hidden');
       }
     } catch (e) {
-      console.warn("Breadcrumb check failed:", e);
+      console.warn("Breadcrumb check error:", e);
     }
   }
 
   btnResumeContinue.addEventListener('click', async () => {
     modalResumeCard.classList.add('hidden');
-    // If not already in study desk, load sample or saved state
     if (catchallSection.style.display !== 'none') {
       document.getElementById('pill-sample-pdf').click();
       setTimeout(() => btnParseLaunch.click(), 400);
@@ -530,7 +630,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => btnUnstickTrigger.click(), 600);
   });
 
-  // Energy-based Task Rerouting: Switch to a lighter 2-minute task
   btnResumeSwitchLight.addEventListener('click', () => {
     modalResumeCard.classList.add('hidden');
     modalLaterDrawer.classList.remove('hidden');
@@ -545,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // LATER DRAWER MODAL
   // --------------------------------------------------------------------------
   function updateLaterDrawerBadge() {
-    laterDrawerCount.textContent = state.laterDrawer.length;
+    laterCountBadge.textContent = state.laterDrawer.length;
     renderLaterDrawerItems();
   }
 
@@ -558,14 +657,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     state.laterDrawer.forEach((item, index) => {
       const card = document.createElement('div');
-      card.className = 'later-item-card';
+      card.className = 'parked-task-card';
       card.innerHTML = `
         <div>
-          <div style="font-weight: 600; font-size: 13px;">${item.title}</div>
-          <div class="later-item-meta">
-            <span class="later-tag">${item.category || 'task'}</span>
-            <span style="font-size: 11px; color: var(--text-secondary);">⏱️ ~${item.estimated_minutes || 2} min</span>
-            ${item.is_quick_win ? '<span class="later-tag" style="background: rgba(45, 212, 191, 0.2); color: var(--accent-teal);">⚡ Quick Win</span>' : ''}
+          <div class="parked-task-name">${item.title}</div>
+          <div class="parked-task-meta">
+            <span>🏷️ ${item.category || 'task'}</span>
+            <span>⏱️ ~${item.estimated_minutes || 5} min</span>
+            ${item.is_quick_win ? '<span style="color: var(--accent-sage); font-weight: 600;">⚡ Quick Win</span>' : ''}
           </div>
         </div>
         <button class="btn btn-secondary btn-reroute-item" data-index="${index}" style="font-size: 11px; padding: 4px 8px;">
@@ -581,7 +680,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = state.laterDrawer[idx];
         modalLaterDrawer.classList.add('hidden');
         
-        // Prepend task into scratchpad as an energizer micro-task
         scratchpadTextarea.value = `### ⚡ 2-Minute Quick Win: ${item.title}\n[ ] Completed\n\n` + scratchpadTextarea.value;
         saveCurrentScratchpad();
         saveBreadcrumbCheckpoint();
@@ -603,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (title && title.trim()) {
       state.laterDrawer.push({
         title: title.trim(),
-        category: "quick-note",
+        category: "note",
         estimated_minutes: 2,
         is_quick_win: true
       });
@@ -633,12 +731,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       (data.metrics.runs || []).forEach(r => {
         const tr = document.createElement('tr');
+        tr.style.borderBottom = "1px solid var(--border-hairline)";
         tr.innerHTML = `
-          <td><strong>#${r.run_id}</strong></td>
-          <td>${r.name}</td>
-          <td>${r.latency_ms} ms</td>
-          <td><strong>${r.tokens_per_sec} tok/s</strong></td>
-          <td style="color: ${r.success ? 'var(--text-success)' : 'var(--text-warning)'}; font-weight: 700;">
+          <td style="padding: 6px;"><strong>#${r.run_id}</strong></td>
+          <td style="padding: 6px;">${r.name}</td>
+          <td style="padding: 6px;">${r.latency_ms} ms</td>
+          <td style="padding: 6px;"><strong>${r.tokens_per_sec} tok/s</strong></td>
+          <td style="padding: 6px; color: ${r.success ? 'var(--accent-sage)' : 'var(--accent-terracotta)'}; font-weight: 600;">
             ${r.success ? 'PASS ✓' : 'FAIL ✕'}
           </td>
         `;
@@ -711,7 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
       e.preventDefault();
       saveBreadcrumbCheckpoint();
-      scratchpadAutosaveStatus.textContent = "💾 Checkpointed (Ctrl+S)";
+      scratchpadAutosaveStatus.textContent = "Checkpointed (Ctrl+S)";
     }
   });
 

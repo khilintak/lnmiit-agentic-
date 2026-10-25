@@ -17,7 +17,7 @@ from app.agent import FocusMateAgent
 HARDWARE_SPECS = {
     "device_name": "KhilinTak OMEN Gaming Laptop",
     "processor": "Intel(R) Core(TM) i7-14650HX (16 Cores, 24 Threads @ 2.20GHz)",
-    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU (8 GB GDDR6 VRAM)",
+    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU (8 GB GDDR6 VRAM)",
     "system_ram": "24.0 GB DDR5 @ 5600 MT/s",
     "storage": "PCIe Gen4 NVMe SSD (485 GB Free)",
     "os": "Windows 11 Home 64-bit"

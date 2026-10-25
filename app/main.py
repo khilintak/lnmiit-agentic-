@@ -19,7 +19,7 @@ from app.benchmark import run_3_repeat_runs, HARDWARE_SPECS
 app = FastAPI(
     title="FocusMate Local - The Guided Work Desk",
     description="All-in-One Guided Study & Work Desk for ADHD / Deep Work. Single-Window Workspace with Local AI.",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # Enable CORS for local dev
@@ -51,6 +51,13 @@ class ChunkTextRequest(BaseModel):
 class UnstickRequest(BaseModel):
     question: str
     notes: Optional[str] = ""
+
+class CheckThinkingRequest(BaseModel):
+    question: str
+    notes: str
+
+class SynthesizeRoadmapRequest(BaseModel):
+    goal: str
 
 class BreadcrumbSaveRequest(BaseModel):
     current_question_index: int
@@ -110,11 +117,28 @@ def chunk_text(req: ChunkTextRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/synthesize-roadmap")
+def synthesize_roadmap(req: SynthesizeRoadmapRequest):
+    """Synthesize a 4-phase guided roadmap when the user has a high-level goal."""
+    try:
+        chunks = agent.synthesize_assignment_roadmap(req.goal)
+        return {"total_chunks": len(chunks), "chunks": chunks}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/unstick")
 def unstick_me(req: UnstickRequest):
     """Generate ELI5 translation, fill-in-the-blank starter, and micro-steps."""
     try:
         return agent.generate_unstick_aid(req.question, current_notes=req.notes)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/check-thinking")
+def check_thinking(req: CheckThinkingRequest):
+    """Validate student's scratchpad notes and provide encouraging guidance."""
+    try:
+        return agent.check_student_thinking(req.question, req.notes)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -163,6 +187,10 @@ def export_session(data: Dict[str, Any]):
 # ---------------------------------------------------------------------------
 # Mount Static Frontend
 # ---------------------------------------------------------------------------
+SAMPLE_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "sample_data")
+if os.path.exists(SAMPLE_DATA_DIR):
+    app.mount("/sample_data", StaticFiles(directory=SAMPLE_DATA_DIR), name="sample_data")
+
 @app.get("/")
 def serve_index():
     index_file = os.path.join(STATIC_DIR, "index.html")

@@ -1,21 +1,21 @@
 {
   "app/agent.py": {
-    "mtime": 1792909273.8732953,
-    "seen": 1792909570.6347651,
-    "ast_hash": "b2861277a3f1c0fcc2c1c88ff2dea53c",
-    "semantic_hash": "b2861277a3f1c0fcc2c1c88ff2dea53c"
+    "mtime": 1792912324.7532477,
+    "seen": 1792912714.8154397,
+    "ast_hash": "b668103222b7dd8d6a918452360e4a0d",
+    "semantic_hash": "b668103222b7dd8d6a918452360e4a0d"
   },
   "app/benchmark.py": {
-    "mtime": 1792909295.113664,
-    "seen": 1792909570.6347718,
-    "ast_hash": "e4454940c9489dcdb000eec5fef01975",
-    "semantic_hash": "e4454940c9489dcdb000eec5fef01975"
+    "mtime": 1792912353.806172,
+    "seen": 1792912714.815447,
+    "ast_hash": "83004324faf816b636284b088c3fe2f3",
+    "semantic_hash": "83004324faf816b636284b088c3fe2f3"
   },
   "app/main.py": {
-    "mtime": 1792909313.8649795,
-    "seen": 1792909570.6347754,
-    "ast_hash": "8db4b31aaff75c2862712fa7cfed40cc",
-    "semantic_hash": "8db4b31aaff75c2862712fa7cfed40cc"
+    "mtime": 1792912630.9164085,
+    "seen": 1792912714.8154507,
+    "ast_hash": "b397b6382cf89062b8cd3c567b012b30",
+    "semantic_hash": "b397b6382cf89062b8cd3c567b012b30"
   },
   "app/ollama_client.py": {
     "mtime": 1792909235.3802204,
@@ -24,9 +24,9 @@
     "semantic_hash": "58f3c87511244836a62e16a2154be15d"
   },
   "app/static/app.js": {
-    "mtime": 1792909500.19411,
-    "seen": 1792909570.6347787,
-    "ast_hash": "6a04312ce41f13596ea777e46b00b837",
-    "semantic_hash": "6a04312ce41f13596ea777e46b00b837"
+    "mtime": 1792912561.0321217,
+    "seen": 1792912714.8157072,
+    "ast_hash": "41611ea86bf35cbeb27d7a1fb5d1e8eb",
+    "semantic_hash": "41611ea86bf35cbeb27d7a1fb5d1e8eb"
   }
 }
