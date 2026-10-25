@@ -1,6 +1,6 @@
 # FocusMate Local — The Guided Work Desk
 
-An All-in-One Guided Study & Work Desk built with an organic, editorial design language (inspired by *The Moment Journal*), replacing distracting to-do apps with a real-time GPS for your study session, featuring atomic question chunking, instant scaffolding, and zero-effort mental breadcrumb recovery. | **Track:** Local Inference Agents | **Team:** Khilin Tak
+An All-in-One Guided Study & Work Desk built with an organic, editorial design language (inspired by *The Moment Journal*), replacing distracting to-do apps with a real-time GPS for your study session, featuring atomic question chunking, instant scaffolding, and zero-effort mental breadcrumb recovery. | **Track:** Local Inference Agents | **Team:** Khilin Tak, Murat Mahnot, Dhruv Pankaj Samariya
 
 ---
 
