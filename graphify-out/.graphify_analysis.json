@@ -1,0 +1,267 @@
+{
+  "communities": {
+    "0": [
+      "app_agent",
+      "app_agent_rationale_1",
+      "app_benchmark",
+      "app_benchmark_generate_markdown_table",
+      "app_benchmark_py_any",
+      "app_benchmark_rationale_1",
+      "app_ollama_client",
+      "app_ollama_client_rationale_1",
+      "io",
+      "json",
+      "logging",
+      "os",
+      "pypdf",
+      "re",
+      "requests",
+      "sys",
+      "typing"
+    ],
+    "1": [
+      "app_main_export_session",
+      "app_main_get_breadcrumb",
+      "app_main_get_system_status",
+      "app_main_py_any",
+      "app_main_rationale_123",
+      "app_main_rationale_141",
+      "app_main_rationale_68",
+      "app_main_serve_index",
+      "get",
+      "time"
+    ],
+    "2": [
+      "app_static_app",
+      "app_static_app_checksavedbreadcrumbonstartup",
+      "app_static_app_checksystemstatus",
+      "app_static_app_insertatcursor",
+      "app_static_app_rendercurrentquestion",
+      "app_static_app_renderlaterdraweritems",
+      "app_static_app_savebreadcrumbcheckpoint",
+      "app_static_app_savecurrentscratchpad",
+      "app_static_app_updatelaterdrawerbadge",
+      "app_static_app_updatewordcount"
+    ],
+    "3": [
+      "app_main",
+      "app_main_rationale_1",
+      "fastapi",
+      "fastapi_middleware_cors",
+      "fastapi_responses",
+      "fastapi_staticfiles",
+      "pydantic",
+      "uvicorn"
+    ],
+    "4": [
+      "app_agent_focusmateagent",
+      "app_agent_focusmateagent_init",
+      "app_benchmark_run_3_repeat_runs",
+      "app_ollama_client_localllmclient",
+      "app_ollama_client_localllmclient_init",
+      "app_ollama_client_localllmclient_is_available",
+      "app_ollama_client_rationale_26"
+    ],
+    "5": [
+      "app_agent_focusmateagent_get_breadcrumb",
+      "app_agent_focusmateagent_save_breadcrumb",
+      "app_agent_py_any",
+      "app_agent_rationale_344",
+      "app_agent_rationale_377"
+    ],
+    "6": [
+      "app_main_breadcrumbsaverequest",
+      "app_main_chunk_text",
+      "app_main_chunktextrequest",
+      "app_main_rationale_106",
+      "basemodel"
+    ],
+    "7": [
+      "app_main_rationale_129",
+      "app_main_rationale_136",
+      "app_main_run_benchmark",
+      "app_main_save_breadcrumb",
+      "post"
+    ],
+    "8": [
+      "app_agent_focusmateagent_chunk_text_to_questions",
+      "app_agent_focusmateagent_parse_pdf_to_chunks",
+      "app_agent_rationale_152",
+      "app_agent_rationale_165"
+    ],
+    "9": [
+      "app_agent_focusmateagent_generate_unstick_aid",
+      "app_agent_focusmateagent_heuristic_unstick_aid",
+      "app_agent_rationale_218",
+      "app_agent_rationale_270"
+    ],
+    "10": [
+      "app_agent_focusmateagent_heuristic_catch_all_parser",
+      "app_agent_focusmateagent_parse_catch_all",
+      "app_agent_rationale_30",
+      "app_agent_rationale_82"
+    ],
+    "11": [
+      "app_main_catchallrequest",
+      "app_main_parse_catch_all",
+      "app_main_rationale_82"
+    ],
+    "12": [
+      "app_main_rationale_115",
+      "app_main_unstick_me",
+      "app_main_unstickrequest"
+    ],
+    "13": [
+      "app_main_rationale_90",
+      "app_main_upload_pdf",
+      "uploadfile"
+    ],
+    "14": [
+      "app_ollama_client_localllmclient_generate",
+      "app_ollama_client_py_any",
+      "app_ollama_client_rationale_45"
+    ],
+    "15": [
+      "app_ollama_client_localllmclient_list_installed_models",
+      "app_ollama_client_rationale_34"
+    ]
+  },
+  "cohesion": {
+    "0": 0.16176470588235295,
+    "1": 0.2,
+    "2": 0.3111111111111111,
+    "3": 0.25,
+    "4": 0.42857142857142855,
+    "5": 0.4,
+    "6": 0.4,
+    "7": 0.4,
+    "8": 0.5,
+    "9": 0.5,
+    "10": 0.5,
+    "11": 0.6666666666666666,
+    "12": 0.6666666666666666,
+    "13": 0.6666666666666666,
+    "14": 0.6666666666666666,
+    "15": 1.0
+  },
+  "gods": [
+    {
+      "id": "app_agent_focusmateagent",
+      "label": "FocusMateAgent",
+      "degree": 14
+    },
+    {
+      "id": "app_ollama_client_localllmclient",
+      "label": "LocalLLMClient",
+      "degree": 11
+    },
+    {
+      "id": "app_benchmark_run_3_repeat_runs",
+      "label": "run_3_repeat_runs()",
+      "degree": 11
+    },
+    {
+      "id": "app_main_export_session",
+      "label": "export_session()",
+      "degree": 5
+    },
+    {
+      "id": "app_main_get_system_status",
+      "label": "get_system_status()",
+      "degree": 4
+    },
+    {
+      "id": "app_main_parse_catch_all",
+      "label": "parse_catch_all()",
+      "degree": 4
+    },
+    {
+      "id": "app_main_unstick_me",
+      "label": "unstick_me()",
+      "degree": 4
+    },
+    {
+      "id": "app_main_upload_pdf",
+      "label": "upload_pdf()",
+      "degree": 4
+    },
+    {
+      "id": "app_static_app_renderlaterdraweritems",
+      "label": "renderLaterDrawerItems()",
+      "degree": 4
+    },
+    {
+      "id": "app_main_chunk_text",
+      "label": "chunk_text()",
+      "degree": 4
+    }
+  ],
+  "surprises": [
+    {
+      "source": "FocusMateAgent",
+      "target": "LocalLLMClient",
+      "source_files": [
+        "app/agent.py",
+        "app/ollama_client.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source"
+    },
+    {
+      "source": "run_benchmark()",
+      "target": "run_3_repeat_runs()",
+      "source_files": [
+        "app/main.py",
+        "app/benchmark.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "run_3_repeat_runs()",
+      "target": "FocusMateAgent",
+      "source_files": [
+        "app/benchmark.py",
+        "app/agent.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "run_3_repeat_runs()",
+      "target": "LocalLLMClient",
+      "source_files": [
+        "app/benchmark.py",
+        "app/ollama_client.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `FocusMateAgent` connect `Community 4` to `Community 0`, `Community 3`, `Community 5`, `Community 8`, `Community 9`, `Community 10`?",
+      "why": "High betweenness centrality (0.224) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 4 inferred relationships involving `run_3_repeat_runs()` (e.g. with `.chunk_text_to_questions()` and `.generate_unstick_aid()`) actually correct?",
+      "why": "`run_3_repeat_runs()` has 4 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `LocalLLMClient` connect `Community 4` to `Community 0`, `Community 3`, `Community 14`, `Community 15`?",
+      "why": "High betweenness centrality (0.140) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `run_3_repeat_runs()` connect `Community 4` to `Community 0`, `Community 1`, `Community 3`, `Community 7`, `Community 8`, `Community 9`, `Community 10`?",
+      "why": "High betweenness centrality (0.093) - this node is a cross-community bridge."
+    }
+  ]
+}
