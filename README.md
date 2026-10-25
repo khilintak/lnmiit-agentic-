@@ -1,154 +1,155 @@
-# FocusMate Local — The Guided Work Desk
+# FocusMate Local: The Guided Work Desk
 
-An All-in-One Guided Study & Work Desk built with an organic, editorial design language (inspired by *The Moment Journal*), replacing distracting to-do apps with a real-time GPS for your study session, featuring atomic question chunking, instant scaffolding, zero-effort mental breadcrumb recovery, and cognitive shield break timers with ADHD negative overtime. | **Track:** Local Inference Agents | **Team: The Trinity** — Khilin Tak, Murat Mahnot, Dhruv Pankaj Samariya
+**A GPS for your study session.** Drop in an assignment PDF and FocusMate shows one question at a time, helps you start, and remembers where you stopped. Everything runs on-device with a 1.5B model. No external APIs.
 
----
+**Track:** Local Inference Agents | **Team:** The Trinity (Khilin Tak, Murat Mahnot, Dhruv Pankaj Samariya) | **Event:** Hack Day Jaipur
 
-## Problem Statement & Target User
-
-### Who has the problem?
-Students and self-directed knowledge workers, particularly neurodivergent individuals (ADHD, executive dysfunction) who face severe mental paralysis when studying from dense 15-page PDFs or multi-step technical assignments.
-
-### What makes it painful?
-Traditional productivity apps fail because they force the user to **manage the app itself**:
-1. **Window-Switching Paralysis**: Switching between 3 separate windows (PDF viewer, to-do list, scratchpad notes) breaks focus every 2 minutes. For someone with ADHD, tab switching is where attention is permanently lost.
-2. **Dense Academic Overload**: Opening a 15-page PDF causes instant cognitive freeze. Summarizing the whole PDF does not solve the assignment questions.
-3. **Blank Page Paralysis**: Staring at an empty notes document without knowing the first formula or step leads to hours of procrastination.
-4. **Context Loss on Interruption**: When an interruption happens (lunch, phone call, tab switch), recovering context requires 15 minutes of re-orientation friction—leading to abandoned study sessions.
-5. **Timer Anxiety & Alarm Panic**: Traditional countdown timers buzz harshly at `00:00`, creating guilt and panic that derail fragile working memory.
+<!-- TODO: add 2 or 3 screenshots here: split-view desk, Resume Card, negative-overtime timer
+![Desk view](docs/desk.png) -->
 
 ---
 
-## Approach, Architecture & Demo
+## The Problem
 
-### The GPS for Your Study Session
-FocusMate Local transforms productivity from a punishing manager into an **in-session GPS**. Just as Google Maps doesn't show you all 500 turns at once, FocusMate guides you through your work **one piece at a time**:
+**Who:** Students and self-directed knowledge workers, especially neurodivergent users (ADHD, executive dysfunction), who freeze when facing a dense 15-page PDF or a multi-step technical assignment.
 
-1. **The "Universal Catch-All" (Pillar 1)**: The student drops their assignment PDF and types or dictates their raw thoughts into a single box (*"Finish assignment by 6 PM, go gym, eat dinner, call mom, revise Chapter 2"*). The agent separates the Immediate Study Work from Later Reminders, safely parking reminders in a low-guilt "Later Drawer" to clear mental RAM.
-2. **The "Chunked Reader & Scratchpad" (Pillar 2)**: The screen splits into two synchronized panels:
-   - **Left Panel (Bite-Sized Reader)**: Shows ONLY one atomic question or section at a time in quiet, distraction-free typography. Automatically highlights **Identified Given Values** (e.g. `R = 10 Ω`, `L = 0.1 H`, `50 Hz`) to ease working memory overload.
-   - **Right Panel (Active Scratchpad)**: A focused workspace right beside the question where the student solves it, with quick formula insertion dropdowns and auto-saving.
-3. **The "Unstick Me" Helper & Cognitive Checker (Pillar 3)**:
-   - Clicking **"Make This Easier"** generates:
-     - Plain English (ELI5) conceptual translation.
-     - Fill-in-the-blank starter template directly injected into the scratchpad (`1. Given Values.. 2. Formula.. 3. Substitution..`), destroying blank page paralysis.
-     - 3 actionable micro-steps under 2 minutes each.
-   - Clicking **"Am I on track?"** validates the student's scratchpad notes in real-time, providing immediate encouragement and guidance without spoiling final answers.
-4. **Automatic "Breadcrumb" Recovery (Pillar 4 - Signature Feature)**: Automatically captures checkpoints on every keystroke and question transition. When returning from a break, the student is greeted by a calm **Resume Card**:
-   - Completed before break: Saved safely.
-   - Where you stopped: Exact question and typed thought snippet.
-   - Next 3-minute step: Concrete micro-action.
-   - Energy-based rerouting: `[Switch to a Lighter Task]` swaps a heavy question for a 2-minute quick errand to rebuild momentum.
+**Why existing tools fail:** they make the user manage the app instead of the work.
 
-### Cognitive Shield & ADHD Executive Function Features
-- **In-Session Distraction Interceptor (`⚡ Intrusive thought?`)**: Located directly in the study ribbon. Type any distraction and press Enter—the agent safely parks it in the Later Drawer without breaking your problem-solving flow.
-- **Autonomous Agent Triage**: Sequences parked thoughts into Quick Wins, Post-Session errands, and Evening Downtime with dynamic cognitive advice.
-- **Full-Screen Break & Task Timer with Negative Overtime**: Selecting any task opens an immersive, distraction-free timer overlay. When time expires (`00:00`), it continues ticking into **negative time** (e.g. `-00:15`, `-01:23`) with a warm terracotta glow, eliminating alarm panic and providing guilt-free space to wrap up.
-- **Minimal Study Sprint Focus Timer**: A whisper-quiet pill in the desk ribbon (`10m`, `15m`, `20m`, `25m`, `30m`, `45m`). When complete, it gently prompts for a **1 to 5 minute diffuse-mode recharge break** or `+5 Min Flow State`.
-- **ADHD-Friendly "All Tasks Completed" Dopamine Closure**: When all assignment questions are solved, a rewarding, serene celebration screen reveals total problems solved, scratchpad words typed, shielded distractions, and one-click Markdown assignment export.
+| Pain point | What happens |
+|---|---|
+| Window-switching paralysis | PDF viewer, to-do list and notes live in 3 windows. Every switch risks losing attention for good. |
+| Dense academic overload | Opening a 15-page PDF causes an instant freeze. Summarising it does not answer the assignment questions. |
+| Blank page paralysis | An empty notes file with no first formula or step leads to hours of procrastination. |
+| Context loss on interruption | After lunch or a phone call, re-orienting takes about 15 minutes, and many sessions are abandoned. |
+| Timer anxiety | A harsh buzz at 00:00 creates guilt and panic that derail working memory. |
 
-### Design Philosophy
-- **Tactile, Organic & Editorial**: Inspired by *The Moment Journal* (`themomentjournal.com`). Styled with warm linen/cream ivory tones, editorial serif typography (*Newsreader*), and quiet, non-distracting layouts.
-- **Zero Vibe-Coded Clichés**: Completely avoids neon purple/teal gradients and garish AI glows.
-- **Fully Responsive**: Optimized for both widescreen desktop workspaces and mobile handheld views (with automated reading/working tab toggling).
+## The Idea
 
-### 3-Minute Live Demo Plan (Judges Guide)
-Following the Hack Day Jaipur 3-minute evaluation structure (Page 10 of Participation Guide):
-- **0:00 – 0:30 | Problem & Target User**: Demonstrate window-switching friction and dense 15-page PDF overwhelm for ADHD students.
-- **0:30 – 1:45 | Live Core Workflow**:
-  1. Click **"💡 Try Mixed Brain Dump"** + **"📑 Load EEE Lab 4"** -> Click **"Auto-Sort & Set Up Desk →"**.
-  2. See atomic Question 1 with identified given parameters extracted automatically.
-  3. Click **"✨ Make This Easier"** -> Inject fill-in-the-blank template -> Click **"💬 Am I on track?"**.
-  4. Type an intrusive thought in ribbon interceptor (*"Buy protein powder"*) -> Click Park.
-  5. Open **Later Drawer** -> Click **"⏱️ Start Timer"** -> See full-screen negative overtime in action (`-00:30`).
-  6. Complete questions -> Experience the serene **All Tasks Completed** celebration screen.
-- **1:45 – 2:20 | Local Model & Architecture**: Explain 100% on-device `qwen2.5:1.5b` running in Ollama on local RTX 5060 GPU VRAM with zero external APIs.
-- **2:20 – 2:45 | Benchmark & Reliability**: Show the 3 repeat runs table (100% pass rate, sub-1.5s latency).
-- **2:45 – 3:00 | Limitations & Next Steps**: Note scanned OCR image limitation and future on-device Whisper offline dictation.
+Google Maps does not show all 500 turns at once. FocusMate does the same for study: one piece at a time, with a route back if you get lost.
+
+### Four pillars
+
+1. **Universal Catch-All.** Drop the PDF and type or dictate a raw brain dump ("finish assignment by 6, gym, dinner, call mom, revise Chapter 2"). The agent separates immediate study work from later reminders and parks the reminders in a low-guilt **Later Drawer**.
+2. **Chunked Reader and Scratchpad.** The screen splits in two. The left panel shows only one atomic question, with given values (for example R = 10 Ω, L = 0.1 H, 50 Hz) highlighted automatically. The right panel is an auto-saving scratchpad with quick formula insertion.
+3. **Unstick Me and Cognitive Checker.**
+   - *Make This Easier* gives a plain-English explanation, a fill-in-the-blank starter (Given Values, Formula, Substitution) injected straight into the scratchpad, and 3 micro-steps of under 2 minutes each.
+   - *Am I on track?* reviews your scratchpad notes and gives encouragement and guidance without spoiling the final answer.
+4. **Breadcrumb Recovery (signature feature).** A checkpoint is saved on every keystroke and question change. When you return from a break, a calm **Resume Card** shows what you completed, exactly where you stopped (question and typed snippet), and a concrete next 3-minute step. If energy is low, *Switch to a Lighter Task* swaps a heavy question for a 2-minute errand to rebuild momentum.
+
+### Cognitive shield features
+
+- **Distraction Interceptor** (⚡ Intrusive thought?). Type a distraction in the study ribbon and press Enter. It is parked in the Later Drawer without breaking your flow.
+- **Agent triage.** Parked thoughts are sorted into Quick Wins, Post-Session errands and Evening Downtime, with short cognitive advice.
+- **Full-screen task timer with negative overtime.** At 00:00 the timer keeps counting into negative time (-00:15, -01:23) with a warm terracotta glow. No alarm, no panic, just room to wrap up.
+- **Study sprint timer.** A quiet pill in the ribbon (10, 15, 20, 25, 30 or 45 min). When done, it offers a 1 to 5 minute recharge break or +5 min of flow.
+- **Completion screen.** When every question is solved, you see problems solved, scratchpad words typed, distractions shielded, and a one-click Markdown export of the assignment.
+
+### Design
+
+Warm linen and cream tones, editorial serif type (Newsreader) and quiet layouts, inspired by The Moment Journal. No neon gradients or AI glow. Fully responsive, with automatic reading and working tab toggling on mobile.
 
 ---
 
-## Model Details (name, size, licence, runtime, quantization, hardware)
+## Quick Start
 
-- **Model Name & Parameters:** `qwen2.5:1.5b` (1.54 Billion parameters)
-- **Model Licence:** Apache-2.0 (Open-Weight Model)
-- **Runtime:** Ollama Local Daemon (`http://127.0.0.1:11434`) + Native Python 3.14 on-device agent
-- **Quantization:** Q4_K_M (4-bit quantized)
-- **Hardware Tested:**
-  - **Laptop:** HP OMEN Gaming Laptop 16
-  - **Processor (CPU):** Intel(R) Core(TM) i7-14650HX (16 Cores, 24 Threads @ 2.20 GHz)
-  - **Graphics Card (GPU):** NVIDIA GeForce RTX 5060 Laptop GPU (8 GB GDDR6 VRAM)
-  - **System RAM:** 24.0 GB DDR5 @ 5600 MT/s
-  - **Operating System:** Windows 11 Home 64-bit
-- **External APIs:** **None (0).** 100% local on-device inference with zero external network dependencies. Fully verified with Wi-Fi disconnected.
+**Requirements:** Windows, macOS or Linux, Python 3.10+ (tested on 3.14), and [Ollama](https://ollama.com) installed and running locally (required for the local model).
 
----
-
-## Setup Instructions
-
-### 1. Prerequisites
-- Windows 10/11, macOS, or Linux
-- Python 3.10+ (Tested on Python 3.14)
-- (Optional for GPU acceleration): [Ollama](https://ollama.com) installed and running locally
-
-### 2. Install Dependencies
-```powershell
+```bash
+# 1. Install dependencies
 pip install fastapi uvicorn pydantic requests pypdf python-multipart graphifyy
-```
 
-### 3. Download Model
-```powershell
+# 2. Download the model
 ollama pull qwen2.5:1.5b
-```
 
-### 4. Start App
-Double-click `run.bat` or run:
-```powershell
+# 3. Start the app (or double-click run.bat on Windows)
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
-Open your browser to: **`http://localhost:8000`**
 
-### 5. Try Example Input
-1. In the Universal Catch-All box, click **"💡 Try Mixed Brain Dump"**.
-2. Click **"📑 Load EEE Lab 4 (Sample PDF)"**.
-3. Click **"Auto-Sort & Set Up Desk →"**.
-4. Observe the clean split view: Question 1 on the left with identified given parameters, Active Scratchpad on the right.
-5. Click **"✨ Make This Easier"** to reveal the Fill-in-the-Blank scaffolding.
-6. Click **"📥 Inject into Scratchpad"** to insert the scaffold into your solution.
-7. Click **"💬 Am I on track?"** to receive instant AI tutor feedback on your thinking.
-8. Open the **"Later Drawer"** in the top navigation to see errands safely parked away, or launch the **Full-Screen Break Timer**.
+Open <http://localhost:8000>.
 
----
+### Try it in 60 seconds
 
-## Results (screenshots / metrics from 3 runs)
+1. In the Universal Catch-All box, click **💡 Try Mixed Brain Dump**.
+2. Click **📑 Load EEE Lab 4 (Sample PDF)**, then **Auto-Sort & Set Up Desk →**.
+3. Question 1 appears on the left with its given values extracted. The scratchpad is on the right.
+4. Click **✨ Make This Easier**, then **📥 Inject into Scratchpad**.
+5. Click **💬 Am I on track?** for feedback on your notes.
+6. Type an intrusive thought in the ribbon (for example "Buy protein powder") and park it.
+7. Open the **Later Drawer**, click **⏱️ Start Timer**, and watch the timer go into negative overtime.
 
-### Three Repeat Benchmark Runs (Official Submission Record)
+### 3-minute judge demo plan
 
-Hardware: Intel Core i7-14650HX | NVIDIA GeForce RTX 5060 Laptop GPU (8GB GDDR6 VRAM) | 24GB DDR5 RAM
-
-| Run # | Test Case / Workflow | Latency (ms) | Tokens Evaluated | Speed (Tokens/Sec) | Status |
-| :---: | :--- | :---: | :---: | :---: | :---: |
-| **1** | Universal Catch-All Categorization | 1564.23 ms | ~68 tokens | **43.47 tok/s** | **PASSED ✓** |
-| **2** | Academic Question Chunking & Extraction | 0.31 ms | ~69 tokens | **223,662.79 tok/s** | **PASSED ✓** |
-| **3** | Unstick Scaffolding & Fill-in-Blank Generation | 1320.40 ms | ~105 tokens | **79.52 tok/s** | **PASSED ✓** |
-
-- **Average Throughput (Tie-Breaker):** **74,595.26 tokens/sec**
-- **Task Success Rate:** **100.0% (3/3 Passed)**
-- **Reliability:** 100% On-Device execution with zero external network dependencies. Native CUDA acceleration on RTX 5060 delivers immediate sub-1.5s response times for real-time cognitive unsticking.
-- **Known Limitations:** PDF tables with complex merged cells are extracted as linear text; handwriting in scanned image-only PDFs requires an OCR preprocessing layer.
+| Time | Segment |
+|---|---|
+| 0:00 to 0:30 | Problem and target user: window-switching friction and PDF overwhelm |
+| 0:30 to 1:45 | Live workflow (steps above), ending on the completion screen |
+| 1:45 to 2:20 | Local model and architecture: on-device Qwen2.5 1.5B via Ollama, zero external APIs |
+| 2:20 to 2:45 | Benchmark and reliability |
+| 2:45 to 3:00 | Limitations and next steps |
 
 ---
 
-## Graphify Integration (link to graph) & Future Scope / Licence
+## Architecture
 
-- **Graph:** [`graphify-out/graph.html`](graphify-out/graph.html)
-- **Code Graph Metrics:** 106 Nodes, 174 Edges, 14 Code Communities clustered via Graphify AST extractor.
-- **Report:** [`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md)
-- **Shared in Discord:** Yes (Hack Day Jaipur channel)
-- **Licence:** MIT License (see [LICENSE](LICENSE))
-- **Agent Skill Specification:** [`SKILL.md`](SKILL.md) conforming to `agentskills.io/specification`.
+```
+Browser UI  <-->  FastAPI backend (app.main)  <-->  Ollama daemon (127.0.0.1:11434)
+ (reader,            PDF parsing (pypdf)               qwen2.5:1.5b, Q4_K_M
+  scratchpad,        chunking, triage, prompts         100% on-device
+  timers)            checkpoint storage
+```
 
-### Future Scope
-1. **On-Device Whisper Voice Capture**: Direct GGML whisper.cpp integration for 100% offline speech-to-text dictation.
-2. **Multi-Modal Assignment Parsing**: Integrating Gemma 3 4B / Qwen2-VL for circuit diagrams and handwritten math notes.
-3. **LMS Sync**: Direct offline export to Canvas, Google Classroom, and Moodle submission portals.
+Every request stays on `127.0.0.1`. The app was verified end to end with Wi-Fi disconnected.
+
+## Model Details
+
+| Item | Value |
+|---|---|
+| Model | qwen2.5:1.5b (1.54B parameters) |
+| Licence | Apache-2.0 (open weights) |
+| Quantization | Q4_K_M (4-bit) |
+| Runtime | Ollama local daemon, Python 3.14 backend |
+| External APIs | None (0) |
+| Laptop | HP OMEN Gaming Laptop 16, Windows 11 Home 64-bit |
+| CPU | Intel Core i7-14650HX (16 cores, 24 threads) |
+| GPU | NVIDIA GeForce RTX 5060 Laptop GPU, 8 GB GDDR6 |
+| RAM | 24 GB DDR5 @ 5600 MT/s |
+
+## Results
+
+Hardware as above. Each workflow was run on the local model.
+
+| Run | Workflow | Latency | Tokens | Speed | Status |
+|---|---|---|---|---|---|
+| 1 | Universal Catch-All categorization | 1564.23 ms | ~68 | 43.47 tok/s | Passed |
+| 2 | Academic question chunking and extraction | 0.31 ms | n/a | n/a | Passed |
+| 3 | Unstick scaffolding and fill-in-the-blank generation | 1320.40 ms | ~105 | 79.52 tok/s | Passed |
+
+- **Task success rate:** 100% (3/3).
+- **Model-backed runs (1 and 3):** average latency about 1.44 s, average throughput about 61.5 tok/s with CUDA acceleration on the RTX 5060.
+- **Note on Run 2:** chunking and given-value extraction is handled by the parser rather than the model (verify and edit this line to match your code), so no token throughput is reported for it. It is excluded from the tok/s average.
+
+<!-- TODO: replace with true repeat runs: run each workflow 3 times and report mean, min and max latency. -->
+
+## Known Limitations
+
+- PDF tables with merged cells are extracted as linear text.
+- Scanned, image-only PDFs and handwriting need an OCR preprocessing layer.
+- A 1.5B model gives uneven scaffolding quality on hard or unusual questions, and the accuracy of *Am I on track?* has not been formally evaluated.
+
+## Future Scope
+
+- **Offline voice capture:** whisper.cpp (GGML) for fully offline dictation.
+- **Multimodal parsing:** Gemma 3 4B or Qwen2-VL for circuit diagrams and handwritten math.
+- **LMS sync:** offline export to Canvas, Google Classroom and Moodle.
+
+## Code Graph (Graphify)
+
+- Interactive graph: `graphify-out/graph.html`
+- Report: `graphify-out/GRAPH_REPORT.md`
+- 106 nodes, 174 edges, 14 code communities (Graphify AST extractor)
+- Shared in the Hack Day Jaipur Discord channel
+- Agent skill specification: `SKILL.md`, conforming to [agentskills.io/specification](https://agentskills.io/specification)
+
+## Licence
+
+Application code: **MIT** (see `LICENSE`). Model weights (Qwen2.5): **Apache-2.0**.
