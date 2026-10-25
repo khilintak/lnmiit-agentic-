@@ -1,6 +1,6 @@
 # FocusMate Local — The Guided Work Desk
 
-An All-in-One Guided Study & Work Desk built with an organic, editorial design language (inspired by *The Moment Journal*), replacing distracting to-do apps with a real-time GPS for your study session, featuring atomic question chunking, instant scaffolding, and zero-effort mental breadcrumb recovery. | **Track:** Local Inference Agents | **Team:** Khilin Tak, Murat Mahnot, Dhruv Pankaj Samariya
+An All-in-One Guided Study & Work Desk built with an organic, editorial design language (inspired by *The Moment Journal*), replacing distracting to-do apps with a real-time GPS for your study session, featuring atomic question chunking, instant scaffolding, and zero-effort mental breadcrumb recovery. | **Track:** Local Inference Agents | **Team: The Trinity ** Khilin Tak, Murat Mahnot, Dhruv Pankaj Samariya
 
 ---
 
@@ -30,7 +30,7 @@ FocusMate Local transforms productivity from a punishing manager into an **in-se
 3. **The "Unstick Me" Helper & Cognitive Checker (Pillar 3)**:
    - Clicking **"Make This Easier"** generates:
      - Plain English (ELI5) conceptual translation.
-     - Fill-in-the-blank starter template directly injected into the scratchpad (`1. Given Values... 2. Formula... 3. Substitution...`), destroying blank page paralysis.
+     - Fill-in-the-blank starter template directly injected into the scratchpad (`1. Given Values.. 2. Formula.. 3. Substitution..`), destroying blank page paralysis.
      - 3 actionable micro-steps under 2 minutes each.
    - Clicking **"Am I on track?"** validates the student's scratchpad notes in real-time, providing immediate encouragement and guidance without spoiling final answers.
 4. **Automatic "Breadcrumb" Recovery (Pillar 4 - Signature Feature)**: Automatically captures checkpoints on every keystroke and question transition. When returning from a break, the student is greeted by a calm **Resume Card**:
