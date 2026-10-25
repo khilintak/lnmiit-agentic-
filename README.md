@@ -117,7 +117,7 @@ Hardware: Intel Core i7-14650HX | NVIDIA GeForce RTX 5060 Laptop GPU (8GB GDDR6 
 
 ---
 
-## Graphify Integration (link to graph) & Future Scope / Licence
+## Graphify Integration (link to graph) and Future Scope or Licence
 
 - **Graph:** [`graphify-out/graph.html`](graphify-out/graph.html)
 - **Code Graph Metrics:** 106 Nodes, 174 Edges, 14 Code Communities clustered via Graphify AST extractor.
