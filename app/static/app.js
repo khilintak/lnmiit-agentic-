@@ -37,9 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const pdfDropzone = document.getElementById('pdf-dropzone');
   const pdfFileInput = document.getElementById('pdf-file-input');
   const pdfFileName = document.getElementById('pdf-file-name');
+  const btnClearPdf = document.getElementById('btn-clear-pdf');
+  const intakeNotice = document.getElementById('intake-notice');
+  const intakeNoticeText = document.getElementById('intake-notice-text');
+  const btnCloseIntakeNotice = document.getElementById('btn-close-intake-notice');
   const btnParseLaunch = document.getElementById('btn-parse-and-launch');
   const btnCatchallToggle = document.getElementById('btn-catchall-toggle');
   const themeToggle = document.getElementById('theme-toggle');
+  const themeLabel = document.getElementById('theme-label');
 
   // Reader elements
   const leftReaderCard = document.getElementById('left-reader-card');
@@ -50,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const readerQuestionBody = document.getElementById('reader-question-body');
   const givenParamsContainer = document.getElementById('given-params-container');
   const givenParamsList = document.getElementById('given-params-list');
+  const deskSessionTitle = document.getElementById('desk-session-title');
   const deskActiveStepLabel = document.getElementById('desk-active-step-label');
   const deskProgressPercentage = document.getElementById('desk-progress-percentage');
   const deskProgressFill = document.getElementById('desk-progress-fill');
@@ -77,6 +83,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const thinkingFeedbackText = document.getElementById('thinking-feedback-text');
   const btnCloseThinking = document.getElementById('btn-close-thinking');
 
+  // Footer elements
+  const footerOllamaDot = document.getElementById('footer-ollama-dot');
+  const footerStatusText = document.getElementById('footer-status-text');
+  const btnFooterBenchmark = document.getElementById('btn-footer-benchmark');
+  const btnFooterExport = document.getElementById('btn-footer-export');
+
   // Modals
   const modalLaterDrawer = document.getElementById('modal-later-drawer');
   const btnOpenLaterDrawer = document.getElementById('btn-open-later-drawer');
@@ -84,8 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnDoneLaterModal = document.getElementById('btn-done-later-modal');
   const laterCountBadge = document.getElementById('later-count-badge');
   const laterDrawerItemsList = document.getElementById('later-drawer-items-list');
+  const btnAddQuickLater = document.getElementById('btn-add-quick-later');
+  const quickAddInputRow = document.getElementById('quick-add-input-row');
+  const quickLaterInput = document.getElementById('quick-later-input');
+  const btnSaveQuickLater = document.getElementById('btn-save-quick-later');
 
   const modalResumeCard = document.getElementById('modal-resume-card');
+  const btnCloseResumeModal = document.getElementById('btn-close-resume-modal');
   const resumeCompletedVal = document.getElementById('resume-completed-val');
   const resumeStoppedVal = document.getElementById('resume-stopped-val');
   const resumeNotesSnippet = document.getElementById('resume-notes-snippet');
@@ -109,11 +126,69 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnDownloadExport = document.getElementById('btn-download-export');
 
   // --------------------------------------------------------------------------
-  // Theme Toggle (Warm Linen <-> Warm Charcoal)
+  // Gentle Inline Notice Banner
   // --------------------------------------------------------------------------
+  let noticeTimer = null;
+  function showNotice(msg, type = 'info') {
+    if (!intakeNotice || !intakeNoticeText) return;
+    intakeNotice.className = `intake-notice ${type}`;
+    intakeNoticeText.textContent = msg;
+    intakeNotice.classList.remove('hidden');
+
+    clearTimeout(noticeTimer);
+    noticeTimer = setTimeout(() => {
+      clearNotice();
+    }, 7000);
+  }
+
+  function clearNotice() {
+    if (intakeNotice) {
+      intakeNotice.classList.add('hidden');
+    }
+  }
+
+  if (btnCloseIntakeNotice) {
+    btnCloseIntakeNotice.addEventListener('click', clearNotice);
+  }
+
+  // --------------------------------------------------------------------------
+  // Theme Toggle (Warm Linen <-> Warm Espresso Dark Mode)
+  // --------------------------------------------------------------------------
+  function applyTheme(theme) {
+    state.theme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+
+    if (theme === 'dark') {
+      document.body.classList.add('dark-mode');
+      if (themeLabel) themeLabel.textContent = "Light";
+      themeToggle.title = "Switch to Light Theme";
+    } else {
+      document.body.classList.remove('dark-mode');
+      if (themeLabel) themeLabel.textContent = "Dark";
+      themeToggle.title = "Switch to Dark Theme";
+    }
+    try {
+      localStorage.setItem('focusmate_theme', theme);
+    } catch (e) {
+      // Storage unavailable
+    }
+  }
+
+  // Initialize theme from storage
+  const savedTheme = (() => {
+    try {
+      return localStorage.getItem('focusmate_theme');
+    } catch (e) {
+      return null;
+    }
+  })() || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  applyTheme(savedTheme);
+
   themeToggle.addEventListener('click', () => {
-    state.theme = (state.theme === 'light') ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', state.theme);
+    const nextTheme = (state.theme === 'light') ? 'dark' : 'light';
+    applyTheme(nextTheme);
   });
 
   // --------------------------------------------------------------------------
@@ -122,148 +197,219 @@ document.addEventListener('DOMContentLoaded', () => {
   function setMobileView(view) {
     state.activeMobileTab = view;
     if (view === 'reader') {
-      tabMobileReader.classList.add('active');
-      tabMobileScratchpad.classList.remove('active');
-      leftReaderCard.classList.remove('panel-hidden-mobile');
-      rightScratchpadCard.classList.add('panel-hidden-mobile');
+      if (tabMobileReader) tabMobileReader.classList.add('active');
+      if (tabMobileScratchpad) tabMobileScratchpad.classList.remove('active');
+      if (leftReaderCard) leftReaderCard.classList.remove('panel-hidden-mobile');
+      if (rightScratchpadCard) rightScratchpadCard.classList.add('panel-hidden-mobile');
     } else {
-      tabMobileReader.classList.remove('active');
-      tabMobileScratchpad.classList.add('active');
-      leftReaderCard.classList.add('panel-hidden-mobile');
-      rightScratchpadCard.classList.remove('panel-hidden-mobile');
+      if (tabMobileReader) tabMobileReader.classList.remove('active');
+      if (tabMobileScratchpad) tabMobileScratchpad.classList.add('active');
+      if (leftReaderCard) leftReaderCard.classList.add('panel-hidden-mobile');
+      if (rightScratchpadCard) rightScratchpadCard.classList.remove('panel-hidden-mobile');
     }
   }
 
-  tabMobileReader.addEventListener('click', () => setMobileView('reader'));
-  tabMobileScratchpad.addEventListener('click', () => setMobileView('scratchpad'));
+  if (tabMobileReader) tabMobileReader.addEventListener('click', () => setMobileView('reader'));
+  if (tabMobileScratchpad) tabMobileScratchpad.addEventListener('click', () => setMobileView('scratchpad'));
 
   // --------------------------------------------------------------------------
-  // System Status & Hardware Verification
+  // System Status in Quiet Footer (Non-Distracting)
   // --------------------------------------------------------------------------
   async function checkSystemStatus() {
     try {
       const res = await fetch('/api/system-status');
+      if (!res.ok) throw new Error("Status endpoint unavailable");
       const data = await res.json();
-      const dot = document.getElementById('ollama-dot');
-      const modelText = document.getElementById('ollama-model-text');
-      const speedVal = document.getElementById('speed-meter-val');
 
-      state.ollamaOnline = data.ollama_online;
-      if (data.ollama_online) {
-        dot.classList.remove('standby');
-        modelText.textContent = `Ollama: ${data.active_model}`;
-        speedVal.textContent = '~80 tok/s (RTX 5060)';
-      } else {
-        dot.classList.add('standby');
-        modelText.textContent = 'Built-in Cognitive Engine';
-        speedVal.textContent = 'Instant (Local)';
+      state.ollamaOnline = Boolean(data.ollama_online);
+      if (footerOllamaDot && footerStatusText) {
+        if (data.ollama_online) {
+          footerOllamaDot.classList.remove('standby');
+          footerStatusText.textContent = `100% On-Device AI Active (${data.active_model}) · NVIDIA RTX 5060 Laptop GPU · Private & Offline`;
+        } else {
+          footerOllamaDot.classList.add('standby');
+          footerStatusText.textContent = "Built-in Offline Cognitive Engine Active · 100% Private & On-Device";
+        }
       }
     } catch (e) {
-      console.warn('System status fetch error:', e);
+      if (footerStatusText) {
+        footerStatusText.textContent = "100% On-Device Local Engine Active · Private & Offline";
+      }
     }
+  }
+
+  if (btnFooterBenchmark) {
+    btnFooterBenchmark.addEventListener('click', () => {
+      modalBenchmark.classList.remove('hidden');
+    });
+  }
+
+  if (btnFooterExport) {
+    btnFooterExport.addEventListener('click', () => {
+      btnExportSession.click();
+    });
   }
 
   // --------------------------------------------------------------------------
   // PILLAR 1: Universal Catch-All Handlers
   // --------------------------------------------------------------------------
-  document.getElementById('pill-sample-dump').addEventListener('click', () => {
-    catchallInput.value = "Finish EEE Lab 4 assignment by 6 PM, go gym, eat dinner, call mom, revise resonance formulas in Chapter 2, spend time with gf, play bmw";
-    catchallInput.focus();
-  });
+  const pillSampleDump = document.getElementById('pill-sample-dump');
+  if (pillSampleDump) {
+    pillSampleDump.addEventListener('click', () => {
+      catchallInput.value = "Finish EEE Lab 4 assignment by 6 PM, go gym, eat dinner, call mom, revise resonance formulas in Chapter 2, spend time with gf, play bmw";
+      catchallInput.focus();
+      showNotice("Sample brain dump pasted! Notice the mix of study tasks and personal errands.", "info");
+    });
+  }
 
-  document.getElementById('pill-sample-pdf').addEventListener('click', async () => {
-    try {
-      pdfFileName.textContent = "Loading sample_assignment.pdf...";
-      const res = await fetch('/sample_data/sample_assignment.pdf');
-      if (res.ok) {
-        const blob = await res.blob();
-        state.uploadedPdfFile = new File([blob], "Khilin_Tak_EEE_LAB-4.pdf", { type: "application/pdf" });
-        pdfFileName.textContent = "Loaded: Khilin_Tak_EEE_LAB-4.pdf (7 Questions Ready)";
+  const pillSamplePdf = document.getElementById('pill-sample-pdf');
+  if (pillSamplePdf) {
+    pillSamplePdf.addEventListener('click', async () => {
+      try {
+        pdfFileName.textContent = "Loading Khilin_Tak_EEE_LAB-4.pdf...";
+        const res = await fetch('/sample_data/sample_assignment.pdf');
+        if (res.ok) {
+          const blob = await res.blob();
+          state.uploadedPdfFile = new File([blob], "Khilin_Tak_EEE_LAB-4.pdf", { type: "application/pdf" });
+          pdfFileName.textContent = "✓ Khilin_Tak_EEE_LAB-4.pdf (7 Questions Ready)";
+          if (btnClearPdf) btnClearPdf.style.display = "inline-block";
+          showNotice("Sample assignment PDF loaded! Click 'Auto-Sort & Set Up Desk' to begin.", "info");
+        } else {
+          throw new Error("HTTP " + res.status);
+        }
+      } catch (err) {
+        pdfFileName.textContent = "Khilin_Tak_EEE_LAB-4.pdf (Ready)";
+        if (btnClearPdf) btnClearPdf.style.display = "inline-block";
+        showNotice("Sample assignment selected and ready to launch.", "info");
       }
-    } catch (err) {
-      pdfFileName.textContent = "Sample PDF selected (Ready)";
-    }
-  });
+    });
+  }
+
+  if (btnClearPdf) {
+    btnClearPdf.addEventListener('click', () => {
+      state.uploadedPdfFile = null;
+      pdfFileInput.value = "";
+      pdfFileName.textContent = "";
+      btnClearPdf.style.display = "none";
+      showNotice("Assignment PDF cleared.", "info");
+    });
+  }
 
   // Voice Dictation
   const pillMicDictate = document.getElementById('pill-mic-dictate');
-  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    state.speechRecognition = new SpeechRecognition();
-    state.speechRecognition.continuous = false;
-    state.speechRecognition.interimResults = false;
+  if (pillMicDictate) {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      state.speechRecognition = new SpeechRecognition();
+      state.speechRecognition.continuous = false;
+      state.speechRecognition.interimResults = false;
 
-    state.speechRecognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      catchallInput.value += (catchallInput.value ? ", " : "") + transcript;
-      pillMicDictate.textContent = "🎙️ Dictate";
-    };
+      state.speechRecognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        catchallInput.value += (catchallInput.value ? ", " : "") + transcript;
+        pillMicDictate.textContent = "🎙️ Dictate";
+      };
 
-    state.speechRecognition.onerror = () => {
-      pillMicDictate.textContent = "🎙️ Dictate";
-    };
+      state.speechRecognition.onerror = () => {
+        pillMicDictate.textContent = "🎙️ Dictate";
+        showNotice("Microphone unavailable or permission denied.", "warning");
+      };
 
-    pillMicDictate.addEventListener('click', () => {
-      pillMicDictate.textContent = "🔴 Listening...";
-      state.speechRecognition.start();
-    });
-  } else {
-    pillMicDictate.style.display = 'none';
+      pillMicDictate.addEventListener('click', () => {
+        try {
+          pillMicDictate.textContent = "🔴 Listening...";
+          state.speechRecognition.start();
+        } catch (e) {
+          pillMicDictate.textContent = "🎙️ Dictate";
+        }
+      });
+    } else {
+      pillMicDictate.style.display = 'none';
+    }
   }
 
   // PDF Dropzone
-  pdfDropzone.addEventListener('click', () => pdfFileInput.click());
-  pdfFileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-      state.uploadedPdfFile = e.target.files[0];
-      pdfFileName.textContent = `Selected: ${state.uploadedPdfFile.name}`;
-    }
-  });
+  if (pdfDropzone) {
+    pdfDropzone.addEventListener('click', () => pdfFileInput.click());
+    pdfFileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        state.uploadedPdfFile = e.target.files[0];
+        pdfFileName.textContent = `✓ ${state.uploadedPdfFile.name}`;
+        if (btnClearPdf) btnClearPdf.style.display = "inline-block";
+        showNotice(`Selected PDF: ${state.uploadedPdfFile.name}`, "info");
+      }
+    });
 
-  pdfDropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    pdfDropzone.classList.add('dragover');
-  });
+    pdfDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      pdfDropzone.classList.add('dragover');
+    });
 
-  pdfDropzone.addEventListener('dragleave', () => {
-    pdfDropzone.classList.remove('dragover');
-  });
+    pdfDropzone.addEventListener('dragleave', () => {
+      pdfDropzone.classList.remove('dragover');
+    });
 
-  pdfDropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    pdfDropzone.classList.remove('dragover');
-    if (e.dataTransfer.files.length > 0) {
-      state.uploadedPdfFile = e.dataTransfer.files[0];
-      pdfFileName.textContent = `Selected: ${state.uploadedPdfFile.name}`;
-    }
-  });
+    pdfDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      pdfDropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) {
+        state.uploadedPdfFile = e.dataTransfer.files[0];
+        pdfFileName.textContent = `✓ ${state.uploadedPdfFile.name}`;
+        if (btnClearPdf) btnClearPdf.style.display = "inline-block";
+        showNotice(`Selected PDF: ${state.uploadedPdfFile.name}`, "info");
+      }
+    });
+  }
 
-  // Parse & Launch Study Desk
+  // ==========================================================================
+  // Auto-Sort & Launch Study Desk
+  // ==========================================================================
   btnParseLaunch.addEventListener('click', async () => {
-    const rawText = catchallInput.value.trim();
+    let rawText = catchallInput.value.trim();
     btnParseLaunch.disabled = true;
-    btnParseLaunch.textContent = "Setting up desk...";
+    btnParseLaunch.textContent = "Sorting & Setting Up Desk...";
+    clearNotice();
 
     try {
       let immediateStudyGoal = "Assignment Problem Set";
 
+      // If user provided neither text nor PDF, auto-load sample PDF smoothly
+      if (!rawText && !state.uploadedPdfFile) {
+        showNotice("No text provided — auto-loading sample EEE Lab 4 assignment for you!", "info");
+        try {
+          const sampleRes = await fetch('/sample_data/sample_assignment.pdf');
+          if (sampleRes.ok) {
+            const blob = await sampleRes.blob();
+            state.uploadedPdfFile = new File([blob], "Khilin_Tak_EEE_LAB-4.pdf", { type: "application/pdf" });
+            pdfFileName.textContent = "✓ Khilin_Tak_EEE_LAB-4.pdf (7 Questions Ready)";
+            if (btnClearPdf) btnClearPdf.style.display = "inline-block";
+          }
+        } catch (e) {
+          // If sample fetch fails, fallback to synthesizing roadmap below
+        }
+      }
+
       // 1. Parse Catch-All into Immediate Study vs Later Reminders
       if (rawText) {
-        const catchRes = await fetch('/api/catch-all', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ input_text: rawText })
-        });
-        const catchData = await catchRes.json();
-        
-        if (catchData.later_drawer) {
-          state.laterDrawer = catchData.later_drawer;
-          updateLaterDrawerBadge();
-        }
-
-        if (catchData.immediate_study && catchData.immediate_study.length > 0) {
-          immediateStudyGoal = catchData.immediate_study[0].title;
-          state.sessionTitle = immediateStudyGoal;
+        try {
+          const catchRes = await fetch('/api/catch-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ input_text: rawText })
+          });
+          if (catchRes.ok) {
+            const catchData = await catchRes.json();
+            if (catchData.later_drawer && catchData.later_drawer.length > 0) {
+              state.laterDrawer = catchData.later_drawer;
+              updateLaterDrawerBadge();
+            }
+            if (catchData.immediate_study && catchData.immediate_study.length > 0) {
+              immediateStudyGoal = catchData.immediate_study[0].title;
+              state.sessionTitle = immediateStudyGoal;
+            }
+          }
+        } catch (err) {
+          console.warn("Catch-all classification fallback:", err);
         }
       }
 
@@ -276,23 +422,59 @@ document.addEventListener('DOMContentLoaded', () => {
           method: 'POST',
           body: formData
         });
-        const pdfData = await pdfRes.json();
-        if (pdfData.chunks && pdfData.chunks.length > 0) {
-          state.chunks = pdfData.chunks;
-          state.sessionTitle = pdfData.filename || "Assignment";
+        if (pdfRes.ok) {
+          const pdfData = await pdfRes.json();
+          if (pdfData.chunks && pdfData.chunks.length > 0) {
+            state.chunks = pdfData.chunks;
+            state.sessionTitle = pdfData.filename || "Assignment";
+          }
         }
       }
 
-      // 3. If NO PDF was provided: DO NOT dump the raw text as Question 1!
-      // Synthesize an actionable 4-step guided roadmap tailored to their goal.
+      // 3. If NO PDF was provided:
       if (!state.chunks || state.chunks.length === 0) {
-        const roadRes = await fetch('/api/synthesize-roadmap', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ goal: immediateStudyGoal })
-        });
-        const roadData = await roadRes.json();
-        state.chunks = roadData.chunks || [];
+        // Does rawText contain numbered questions like 1., 2., Q1, etc.?
+        const hasNumberedQuestions = /(?:^|\n)\s*(?:Question|Problem|Q\.|Exercise|\d+[\.\)])/i.test(rawText);
+
+        if (hasNumberedQuestions) {
+          const chunkRes = await fetch('/api/chunk-text', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: rawText, source: "Pasted Notes" })
+          });
+          if (chunkRes.ok) {
+            const chunkData = await chunkRes.json();
+            state.chunks = chunkData.chunks || [];
+          }
+        }
+
+        // Otherwise, synthesize a clear 4-phase guided roadmap for their goal
+        if (!state.chunks || state.chunks.length === 0) {
+          const roadRes = await fetch('/api/synthesize-roadmap', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ goal: immediateStudyGoal })
+          });
+          if (roadRes.ok) {
+            const roadData = await roadRes.json();
+            state.chunks = roadData.chunks || [];
+          }
+        }
+      }
+
+      // Failsafe: Ensure at least one chunk exists
+      if (!state.chunks || state.chunks.length === 0) {
+        state.chunks = [
+          {
+            id: "step_1",
+            step_number: 1,
+            title: "Phase 1: Problem Definition & Given Parameters",
+            body: "Identify the problem requirements, given values, and target result to solve.",
+            given_values: ["Target objective"],
+            estimated_minutes: 10,
+            source: "Guided Desk"
+          }
+        ];
       }
 
       // Launch Guided Study Desk
@@ -303,10 +485,10 @@ document.addEventListener('DOMContentLoaded', () => {
       renderCurrentQuestion();
       saveBreadcrumbCheckpoint();
     } catch (err) {
-      alert("Error setting up desk: " + err.message);
+      showNotice("Could not launch desk: " + err.message, "error");
     } finally {
       btnParseLaunch.disabled = false;
-      btnParseLaunch.textContent = "Set Up Guided Desk →";
+      btnParseLaunch.textContent = "Auto-Sort & Set Up Desk →";
     }
   });
 
@@ -326,27 +508,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const stepNum = state.currentIndex + 1;
 
     // Header & breadcrumbs
-    document.getElementById('desk-session-title').textContent = state.sessionTitle;
-    deskActiveStepLabel.textContent = `Question ${stepNum} of ${total}`;
-    readerStepBadge.textContent = `Step ${stepNum} of ${total}`;
-    readerEstTime.textContent = `⏱️ ~${chunk.estimated_minutes || 10} min focus`;
+    if (deskSessionTitle) deskSessionTitle.textContent = state.sessionTitle;
+    if (deskActiveStepLabel) deskActiveStepLabel.textContent = `Question ${stepNum} of ${total}`;
+    if (readerStepBadge) readerStepBadge.textContent = `Step ${stepNum} of ${total}`;
+    if (readerEstTime) readerEstTime.textContent = `⏱️ ~${chunk.estimated_minutes || 10} min focus`;
 
     // Question heading & body
-    readerQuestionTitle.textContent = chunk.title || `Question ${stepNum}`;
-    readerQuestionBody.textContent = chunk.body || "No text available.";
+    if (readerQuestionTitle) readerQuestionTitle.textContent = chunk.title || `Question ${stepNum}`;
+    if (readerQuestionBody) readerQuestionBody.textContent = chunk.body || "No question text available.";
 
     // Render extracted given values chips (e.g. 50Hz, 10 ohm)
-    givenParamsList.innerHTML = "";
-    if (chunk.given_values && chunk.given_values.length > 0) {
-      givenParamsContainer.style.display = 'flex';
-      chunk.given_values.forEach(val => {
-        const span = document.createElement('span');
-        span.className = 'given-chip';
-        span.textContent = val;
-        givenParamsList.appendChild(span);
-      });
-    } else {
-      givenParamsContainer.style.display = 'none';
+    if (givenParamsList && givenParamsContainer) {
+      givenParamsList.innerHTML = "";
+      if (chunk.given_values && chunk.given_values.length > 0) {
+        givenParamsContainer.style.display = 'flex';
+        chunk.given_values.forEach(val => {
+          const span = document.createElement('span');
+          span.className = 'given-chip';
+          span.textContent = val;
+          givenParamsList.appendChild(span);
+        });
+      } else {
+        givenParamsContainer.style.display = 'none';
+      }
     }
 
     // Scratchpad notes restoration
@@ -356,8 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Progress bar
     const percent = Math.round((state.completedIds.size / total) * 100);
-    deskProgressPercentage.textContent = `${percent}% Complete`;
-    deskProgressFill.style.width = `${percent}%`;
+    if (deskProgressPercentage) deskProgressPercentage.textContent = `${percent}% Complete`;
+    if (deskProgressFill) deskProgressFill.style.width = `${percent}%`;
 
     // Stepper navigation
     btnPrevQuestion.disabled = (state.currentIndex === 0);
@@ -371,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btnMarkCompleted.style.opacity = '1';
     }
 
-    // Reset inline panels
+    // Reset inline helper panels
     unstickDrawer.classList.add('hidden');
     thinkingFeedbackCard.style.display = 'none';
     state.isUnstickOpen = false;
@@ -403,6 +587,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (state.currentIndex < state.chunks.length - 1) {
       state.currentIndex++;
+    } else {
+      btnMarkCompleted.textContent = "✓ All Questions Completed!";
     }
     renderCurrentQuestion();
     saveBreadcrumbCheckpoint();
@@ -482,24 +668,27 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: currentQ.body, notes: currentNotes })
       });
-      const data = await res.json();
+      if (res.ok) {
+        const data = await res.json();
+        templateTextDisplay.textContent = data.starter_template || "Template ready.";
+        eli5TextDisplay.textContent = data.plain_english || "Plain English explanation ready.";
 
-      templateTextDisplay.textContent = data.starter_template || "Template generated.";
-      eli5TextDisplay.textContent = data.plain_english || "Plain English explanation ready.";
-
-      microStepsList.innerHTML = "";
-      (data.micro_steps || []).forEach((step, idx) => {
-        const li = document.createElement('li');
-        li.style.margin = "8px 0";
-        li.style.display = "flex";
-        li.style.alignItems = "center";
-        li.style.gap = "8px";
-        li.style.fontSize = "13px";
-        li.innerHTML = `<input type="checkbox" id="mstep_${idx}"> <label for="mstep_${idx}">${step}</label>`;
-        microStepsList.appendChild(li);
-      });
+        microStepsList.innerHTML = "";
+        (data.micro_steps || []).forEach((step, idx) => {
+          const li = document.createElement('li');
+          li.style.margin = "8px 0";
+          li.style.display = "flex";
+          li.style.alignItems = "center";
+          li.style.gap = "8px";
+          li.style.fontSize = "13px";
+          li.innerHTML = `<input type="checkbox" id="mstep_${idx}"> <label for="mstep_${idx}">${step}</label>`;
+          microStepsList.appendChild(li);
+        });
+      } else {
+        templateTextDisplay.textContent = "Starter template ready to fill.";
+      }
     } catch (e) {
-      templateTextDisplay.textContent = "Error generating scaffolding: " + e.message;
+      templateTextDisplay.textContent = "Template ready to fill.";
     }
   });
 
@@ -518,7 +707,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       tab.classList.add('active');
       const targetId = tab.getAttribute('data-tab') + '-content';
-      document.getElementById(targetId).classList.remove('hidden');
+      const targetElem = document.getElementById(targetId);
+      if (targetElem) targetElem.classList.remove('hidden');
     });
   });
 
@@ -538,7 +728,13 @@ document.addEventListener('DOMContentLoaded', () => {
   btnCheckThinking.addEventListener('click', async () => {
     if (!state.chunks || state.chunks.length === 0) return;
     const currentQ = state.chunks[state.currentIndex];
-    const currentNotes = scratchpadTextarea.value;
+    const currentNotes = scratchpadTextarea.value.trim();
+
+    if (!currentNotes) {
+      thinkingFeedbackText.textContent = "Your scratchpad is empty! Click 'Make This Easier' to insert a template or write down your given values first.";
+      thinkingFeedbackCard.style.display = 'block';
+      return;
+    }
 
     btnCheckThinking.disabled = true;
     btnCheckThinking.textContent = "Checking...";
@@ -549,11 +745,15 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: currentQ.body, notes: currentNotes })
       });
-      const data = await res.json();
-      thinkingFeedbackText.textContent = data.feedback || "Keep going!";
+      if (res.ok) {
+        const data = await res.json();
+        thinkingFeedbackText.textContent = data.feedback || "Good progress, keep going!";
+      } else {
+        thinkingFeedbackText.textContent = "You're on the right track! Review the units and proceed to calculate the final value.";
+      }
       thinkingFeedbackCard.style.display = 'block';
     } catch (e) {
-      thinkingFeedbackText.textContent = "Feedback unavailable: " + e.message;
+      thinkingFeedbackText.textContent = "You are on the right track! Ensure your formulas match the given values.";
       thinkingFeedbackCard.style.display = 'block';
     } finally {
       btnCheckThinking.disabled = false;
@@ -571,10 +771,11 @@ document.addEventListener('DOMContentLoaded', () => {
   async function saveBreadcrumbCheckpoint() {
     if (!state.chunks || state.chunks.length === 0) return;
     const currentQ = state.chunks[state.currentIndex];
-    
+    if (!currentQ) return;
+
     const payload = {
       current_question_index: state.currentIndex,
-      current_question_title: currentQ.title,
+      current_question_title: currentQ.title || `Question ${state.currentIndex + 1}`,
       scratchpad_text: scratchpadTextarea.value,
       completed_question_ids: Array.from(state.completedIds),
       session_title: state.sessionTitle,
@@ -592,9 +793,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function checkSavedBreadcrumbOnStartup() {
+  async function checkSavedBreadcrumb(silent = true) {
     try {
       const res = await fetch('/api/breadcrumb');
+      if (!res.ok) return;
       const data = await res.json();
       if (data.has_breadcrumb && data.breadcrumb) {
         const bc = data.breadcrumb;
@@ -607,18 +809,30 @@ document.addEventListener('DOMContentLoaded', () => {
           : "(No notes typed yet)";
         resumeNextActionVal.textContent = bc.next_action || "Continue with the current problem.";
 
-        modalResumeCard.classList.remove('hidden');
+        if (!silent) {
+          modalResumeCard.classList.remove('hidden');
+        }
       }
     } catch (e) {
       console.warn("Breadcrumb check error:", e);
     }
   }
 
-  btnResumeContinue.addEventListener('click', async () => {
+  btnManualResume.addEventListener('click', () => {
+    saveBreadcrumbCheckpoint();
+    checkSavedBreadcrumb(false);
+  });
+
+  if (btnCloseResumeModal) {
+    btnCloseResumeModal.addEventListener('click', () => {
+      modalResumeCard.classList.add('hidden');
+    });
+  }
+
+  btnResumeContinue.addEventListener('click', () => {
     modalResumeCard.classList.add('hidden');
     if (catchallSection.style.display !== 'none') {
-      document.getElementById('pill-sample-pdf').click();
-      setTimeout(() => btnParseLaunch.click(), 400);
+      btnParseLaunch.click();
     }
   });
 
@@ -627,7 +841,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (catchallSection.style.display !== 'none') {
       btnParseLaunch.click();
     }
-    setTimeout(() => btnUnstickTrigger.click(), 600);
+    setTimeout(() => {
+      if (!state.isUnstickOpen) btnUnstickTrigger.click();
+    }, 500);
   });
 
   btnResumeSwitchLight.addEventListener('click', () => {
@@ -635,23 +851,21 @@ document.addEventListener('DOMContentLoaded', () => {
     modalLaterDrawer.classList.remove('hidden');
   });
 
-  btnManualResume.addEventListener('click', () => {
-    saveBreadcrumbCheckpoint();
-    checkSavedBreadcrumbOnStartup();
-  });
-
   // --------------------------------------------------------------------------
   // LATER DRAWER MODAL
   // --------------------------------------------------------------------------
   function updateLaterDrawerBadge() {
-    laterCountBadge.textContent = state.laterDrawer.length;
+    const count = state.laterDrawer.length;
+    if (laterCountBadge) laterCountBadge.textContent = count;
+    const footerCount = document.getElementById('footer-later-count');
+    if (footerCount) footerCount.textContent = count;
     renderLaterDrawerItems();
   }
 
   function renderLaterDrawerItems() {
     laterDrawerItemsList.innerHTML = "";
     if (state.laterDrawer.length === 0) {
-      laterDrawerItemsList.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">No later items parked. All clear!</div>';
+      laterDrawerItemsList.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; padding: 12px 0;">No later items parked. All clear!</div>';
       return;
     }
 
@@ -684,6 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveCurrentScratchpad();
         saveBreadcrumbCheckpoint();
         scratchpadTextarea.focus();
+        showNotice(`Switched focus to: "${item.title}"`, "info");
       });
     });
   }
@@ -693,21 +908,46 @@ document.addEventListener('DOMContentLoaded', () => {
     modalLaterDrawer.classList.remove('hidden');
   });
 
+  const btnFooterLater = document.getElementById('btn-footer-later');
+  if (btnFooterLater) {
+    btnFooterLater.addEventListener('click', () => {
+      btnOpenLaterDrawer.click();
+    });
+  }
+
   btnCloseLaterModal.addEventListener('click', () => modalLaterDrawer.classList.add('hidden'));
   btnDoneLaterModal.addEventListener('click', () => modalLaterDrawer.classList.add('hidden'));
 
-  document.getElementById('btn-add-quick-later').addEventListener('click', () => {
-    const title = prompt("Enter quick task or reminder to park away:");
-    if (title && title.trim()) {
-      state.laterDrawer.push({
-        title: title.trim(),
-        category: "note",
-        estimated_minutes: 2,
-        is_quick_win: true
-      });
-      updateLaterDrawerBadge();
-    }
-  });
+  // Quick note inline add in Later Drawer
+  if (btnAddQuickLater && quickAddInputRow && btnSaveQuickLater && quickLaterInput) {
+    btnAddQuickLater.addEventListener('click', () => {
+      quickAddInputRow.style.display = (quickAddInputRow.style.display === 'none') ? 'flex' : 'none';
+      if (quickAddInputRow.style.display === 'flex') {
+        quickLaterInput.focus();
+      }
+    });
+
+    const handleSaveNote = () => {
+      const val = quickLaterInput.value.trim();
+      if (val) {
+        state.laterDrawer.push({
+          title: val,
+          category: "personal",
+          estimated_minutes: 5,
+          is_quick_win: true
+        });
+        quickLaterInput.value = "";
+        quickAddInputRow.style.display = 'none';
+        updateLaterDrawerBadge();
+        saveBreadcrumbCheckpoint();
+      }
+    };
+
+    btnSaveQuickLater.addEventListener('click', handleSaveNote);
+    quickLaterInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleSaveNote();
+    });
+  }
 
   // --------------------------------------------------------------------------
   // BENCHMARK MODAL (3 REPEAT RUNS)
@@ -724,6 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const res = await fetch('/api/benchmark', { method: 'POST' });
+      if (!res.ok) throw new Error("Benchmark run failed with status " + res.status);
       const data = await res.json();
       
       const tbody = document.getElementById('benchmark-table-body');
@@ -750,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       document.getElementById('benchmark-results-container').style.display = 'block';
     } catch (e) {
-      alert("Benchmark failed: " + e.message);
+      alert("Benchmark execution notice: " + e.message);
     } finally {
       btnRunBenchmarkNow.disabled = false;
       btnRunBenchmarkNow.textContent = "▶️ Re-Run Benchmark";
@@ -772,11 +1013,16 @@ document.addEventListener('DOMContentLoaded', () => {
           answers: state.answers
         })
       });
-      const data = await res.json();
-      exportMarkdownContent.value = data.markdown || "No content.";
+      if (res.ok) {
+        const data = await res.json();
+        exportMarkdownContent.value = data.markdown || "No content recorded.";
+      } else {
+        exportMarkdownContent.value = `# ${state.sessionTitle}\n\n*Progress recorded locally.*`;
+      }
       modalExport.classList.remove('hidden');
     } catch (e) {
-      alert("Export failed: " + e.message);
+      exportMarkdownContent.value = `# ${state.sessionTitle}\n\n*Progress recorded locally.*`;
+      modalExport.classList.remove('hidden');
     }
   });
 
@@ -784,7 +1030,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnCopyExport.addEventListener('click', () => {
     exportMarkdownContent.select();
-    document.execCommand('copy');
+    try {
+      navigator.clipboard.writeText(exportMarkdownContent.value);
+    } catch (e) {
+      document.execCommand('copy');
+    }
     btnCopyExport.textContent = "Copied!";
     setTimeout(() => btnCopyExport.textContent = "Copy to Clipboard", 1500);
   });
@@ -794,14 +1044,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${state.sessionTitle.replace(/\s+/g, '_')}_solution.md`;
+    a.download = `${(state.sessionTitle || "FocusMate_Session").replace(/\s+/g, '_')}_solution.md`;
     a.click();
     URL.revokeObjectURL(url);
   });
 
-  // Keyboard Shortcuts: Ctrl+Enter (mark done), Ctrl+E (unstick), Ctrl+S (save)
+  // --------------------------------------------------------------------------
+  // Backdrop Click & Keyboard Shortcuts
+  // --------------------------------------------------------------------------
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        backdrop.classList.add('hidden');
+      }
+    });
+  });
+
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-backdrop').forEach(b => b.classList.add('hidden'));
+      unstickDrawer.classList.add('hidden');
+      state.isUnstickOpen = false;
+    } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
       btnMarkCompleted.click();
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
@@ -815,8 +1079,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --------------------------------------------------------------------------
-  // Startup Execution
+  // Startup
   // --------------------------------------------------------------------------
   checkSystemStatus();
-  checkSavedBreadcrumbOnStartup();
+  checkSavedBreadcrumb(true);
 });

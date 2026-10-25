@@ -31,6 +31,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_no_cache_headers(request, call_next):
+    response = await call_next(request)
+    if any(request.url.path.endswith(ext) for ext in [".css", ".js", ".html"]) or request.url.path == "/":
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        if request.url.path.endswith(".js"):
+            response.headers["Content-Type"] = "application/javascript; charset=utf-8"
+        elif request.url.path.endswith(".css"):
+            response.headers["Content-Type"] = "text/css; charset=utf-8"
+        elif request.url.path.endswith(".html") or request.url.path == "/":
+            response.headers["Content-Type"] = "text/html; charset=utf-8"
+    return response
+
 # Initialize Agent
 llm_client = LocalLLMClient()
 agent = FocusMateAgent(llm_client=llm_client)

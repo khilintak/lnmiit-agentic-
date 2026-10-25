@@ -10,44 +10,31 @@
 <body>
 
   <!-- ========================================================================
-       Top Navigation & System Status
+       Top Navigation (Clean, Serene, Distraction-Free)
        ======================================================================== -->
   <header class="top-nav">
     <div class="nav-brand">
       <div class="brand-monogram">F</div>
       <div class="brand-title">
         FocusMate Local
-        <span class="brand-badge">Offline Local AI</span>
-      </div>
-    </div>
-
-    <div class="nav-center-status">
-      <div class="status-badge" id="ollama-status-badge" title="Local Inference Agent">
-        <span class="status-dot" id="ollama-dot"></span>
-        <span id="ollama-model-text">Ollama: qwen2.5:1.5b</span>
-      </div>
-      <div class="status-badge" title="Hardware Verified">
-        <span>RTX 5060 (8GB) | i7-14650HX | 24GB RAM</span>
-      </div>
-      <div class="status-badge" title="Tokens per second">
-        <span>Speed: <strong id="speed-meter-val">~80 tok/s</strong></span>
+        <span class="brand-badge">The Guided Work Desk</span>
       </div>
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
-        🌓
+      <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+        🌙 <span class="theme-label" id="theme-label">Dark</span>
       </button>
       <button class="btn btn-secondary" id="btn-open-later-drawer" title="Parked Reminders">
         Later Drawer <span class="card-step-badge" id="later-count-badge">0</span>
       </button>
-      <button class="btn btn-secondary" id="btn-open-benchmark" title="Run 3 Repeat Benchmark">
+      <button class="btn btn-secondary" id="btn-open-benchmark" title="Local RTX 5060 GPU Benchmark">
         Benchmark
       </button>
       <button class="btn btn-secondary" id="btn-export-session" title="Export Solution">
         Export
       </button>
-      <button class="btn btn-primary" id="btn-catchall-toggle" title="Universal Intake">
+      <button class="btn btn-primary" id="btn-catchall-toggle" title="Start a fresh session">
         New Session
       </button>
     </div>
@@ -82,6 +69,13 @@
           <div class="dropzone-desc">or click to browse from your computer</div>
           <input type="file" id="pdf-file-input" accept=".pdf" style="display:none;">
           <div id="pdf-file-name" style="font-size: 12px; color: var(--accent-terracotta); margin-top: 6px; font-weight: 600;"></div>
+          <button type="button" id="btn-clear-pdf" style="display:none; margin-top: 6px; background: none; border: none; font-size: 11px; color: var(--text-muted); cursor: pointer; text-decoration: underline;">✕ Remove PDF</button>
+        </div>
+
+        <!-- Gentle Inline Notice (Replaces jarring alert dialogs) -->
+        <div id="intake-notice" class="intake-notice hidden">
+          <span id="intake-notice-text"></span>
+          <button class="notice-close-btn" id="btn-close-intake-notice">✕</button>
         </div>
 
         <div class="catchall-footer">
@@ -90,8 +84,8 @@
             <span class="soft-pill" id="pill-sample-pdf">📑 Load EEE Lab 4 (Sample PDF)</span>
             <span class="soft-pill" id="pill-mic-dictate">🎙️ Dictate</span>
           </div>
-          <button class="btn btn-primary" id="btn-parse-and-launch" style="padding: 9px 20px;">
-            Set Up Guided Desk →
+          <button class="btn btn-primary" id="btn-parse-and-launch" style="padding: 9px 22px;">
+            Auto-Sort &amp; Set Up Desk →
           </button>
         </div>
       </div>
@@ -265,8 +259,23 @@
   </main>
 
   <!-- ========================================================================
-       MODAL 1: Later Drawer (Parked Reminders)
+       Quiet Footer (Non-Distracting Hardware & Privacy Status)
        ======================================================================== -->
+  <footer class="desk-quiet-footer">
+    <div class="quiet-footer-content">
+      <div class="quiet-status-row">
+        <span class="status-dot-subtle" id="footer-ollama-dot"></span>
+        <span id="footer-status-text">100% On-Device Local AI Active · NVIDIA RTX 5060 GPU · Fully Private &amp; Offline</span>
+      </div>
+      <div class="quiet-links-row">
+        <button class="footer-link-btn" id="btn-footer-benchmark">GPU Benchmark &amp; Specs</button>
+        <span class="sep">·</span>
+        <button class="footer-link-btn" id="btn-footer-export">Export Notes</button>
+        <span class="sep">·</span>
+        <span class="quiet-motto">One problem at a time. Zero cognitive overload.</span>
+      </div>
+    </div>
+  </footer>
   <div class="modal-backdrop hidden" id="modal-later-drawer">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -278,6 +287,11 @@
         <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
           These tasks were extracted from your intake dump and safely parked so they don't occupy your mental RAM.
         </p>
+
+        <div id="quick-add-input-row" style="display: none; margin-bottom: 14px; gap: 8px;">
+          <input type="text" id="quick-later-input" placeholder="e.g. Call mom, grab gym bag, drink water..." style="flex: 1; padding: 7px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-medium); background: var(--bg-canvas); color: var(--text-ink); font-size: 13px;">
+          <button class="btn btn-primary" id="btn-save-quick-later" style="padding: 7px 14px; font-size: 12px;">Park Note</button>
+        </div>
 
         <div id="later-drawer-items-list">
           <div style="color: var(--text-muted); font-size: 13px;">No later items parked.</div>
@@ -298,6 +312,7 @@
     <div class="modal-sheet">
       <div class="modal-sheet-header">
         <div class="modal-sheet-title">Welcome Back: Mental Breadcrumb</div>
+        <button class="btn btn-secondary" id="btn-close-resume-modal" style="padding: 4px 10px;">✕</button>
       </div>
 
       <div class="modal-sheet-body">
