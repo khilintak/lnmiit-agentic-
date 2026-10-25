@@ -113,6 +113,21 @@
         </div>
 
         <div class="ribbon-right">
+          <!-- Minimalist Study Focus Sprint Timer Pill -->
+          <div class="study-focus-pill" id="study-focus-pill" title="Study Sprint Focus Timer (Click ⏸ to pause/resume, or pick duration)">
+            <span class="study-focus-dot" id="study-focus-dot"></span>
+            <button class="study-focus-toggle-btn" id="btn-study-timer-toggle" title="Pause / Resume Study Sprint">⏸</button>
+            <span class="study-focus-digits" id="study-focus-digits">25:00</span>
+            <select class="study-focus-preset-select" id="study-focus-preset-select" title="Focus Sprint Length">
+              <option value="10">10m</option>
+              <option value="15">15m</option>
+              <option value="20">20m</option>
+              <option value="25" selected>25m</option>
+              <option value="30">30m</option>
+              <option value="45">45m</option>
+            </select>
+          </div>
+
           <span style="font-size: 12px; color: var(--text-secondary);" id="desk-progress-percentage">0% Complete</span>
           <div class="progress-track">
             <div class="progress-fill" id="desk-progress-fill" style="width: 0%;"></div>
@@ -291,6 +306,68 @@
       </div>
     </div>
   </footer>
+
+  <!-- ========================================================================
+       MODAL 0: Break Time Prompt (1 - 5 Minutes Dopamine Reset)
+       ======================================================================== -->
+  <div class="modal-backdrop hidden" id="modal-break-prompt">
+    <div class="modal-sheet" style="max-width: 500px;">
+      <div class="modal-sheet-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">☕</span>
+          <div class="modal-sheet-title">Study Sprint Complete</div>
+        </div>
+        <button class="btn btn-secondary" id="btn-close-break-prompt" style="padding: 4px 10px;">✕</button>
+      </div>
+
+      <div class="modal-sheet-body" style="text-align: center; padding: 22px 20px;">
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.5;">
+          Great job! A quick diffuse-mode break restores executive stamina and lets your brain synthesize concepts.
+        </p>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 12px;">
+          Select recharge break length (1 – 5 mins):
+        </div>
+
+        <div class="break-choice-grid">
+          <button class="break-choice-card" data-minutes="1" title="1 Minute Eye Rest &amp; Breath">
+            <span class="break-choice-minutes">1 min</span>
+            <span class="break-choice-label">Eye Rest</span>
+          </button>
+          <button class="break-choice-card" data-minutes="2" title="2 Minute Hydrate &amp; Reset">
+            <span class="break-choice-minutes">2 min</span>
+            <span class="break-choice-label">Hydrate</span>
+          </button>
+          <button class="break-choice-card featured" data-minutes="3" title="3 Minute Stand &amp; Stretch">
+            <span class="break-choice-minutes">3 min</span>
+            <span class="break-choice-label">Stretch</span>
+          </button>
+          <button class="break-choice-card" data-minutes="4" title="4 Minute Room Walk">
+            <span class="break-choice-minutes">4 min</span>
+            <span class="break-choice-label">Room Walk</span>
+          </button>
+          <button class="break-choice-card" data-minutes="5" title="5 Minute Full Reset">
+            <span class="break-choice-minutes">5 min</span>
+            <span class="break-choice-label">Full Reset</span>
+          </button>
+        </div>
+
+        <div style="margin-top: 16px; font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+          💡 Includes <strong>negative overtime</strong> — no loud alarms if you take a few extra seconds.
+        </div>
+      </div>
+
+      <div class="modal-sheet-footer" style="justify-content: space-between;">
+        <button class="btn btn-secondary" id="btn-skip-break" title="Skip break and continue studying immediately">
+          Keep Working (Skip)
+        </button>
+        <button class="btn btn-primary" id="btn-extend-study" title="Add 5 more minutes of focus time">
+          +5 Min Focus →
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop hidden" id="modal-later-drawer">
     <div class="modal-sheet" style="max-width: 680px;">
       <div class="modal-sheet-header">

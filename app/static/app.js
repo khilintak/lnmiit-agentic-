@@ -152,6 +152,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnFocusTaskCompleted = document.getElementById('btn-focus-task-completed');
   const btnFocusTaskRepeat = document.getElementById('btn-focus-task-repeat');
 
+  // Minimal Study Focus Sprint Timer & Break Prompt
+  const studyFocusPill = document.getElementById('study-focus-pill');
+  const studyFocusDot = document.getElementById('study-focus-dot');
+  const btnStudyTimerToggle = document.getElementById('btn-study-timer-toggle');
+  const studyFocusDigits = document.getElementById('study-focus-digits');
+  const studyFocusPresetSelect = document.getElementById('study-focus-preset-select');
+
+  const modalBreakPrompt = document.getElementById('modal-break-prompt');
+  const btnCloseBreakPrompt = document.getElementById('btn-close-break-prompt');
+  const btnSkipBreak = document.getElementById('btn-skip-break');
+  const btnExtendStudy = document.getElementById('btn-extend-study');
+
+  // Study Timer State
+  let studyTimerInterval = null;
+  let studyTimerSeconds = 25 * 60; // 25 min default focus sprint
+  let studyTimerPresetSeconds = 25 * 60;
+  let isStudyTimerPaused = false;
+
   // Full-Screen Focus Timer State
   let activeFocusTask = null;
   let activeFocusTaskIndex = -1;
@@ -519,6 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setMobileView('reader');
       renderCurrentQuestion();
       saveBreadcrumbCheckpoint();
+      startStudyTimer();
     } catch (err) {
       showNotice("Could not launch desk: " + err.message, "error");
     } finally {
@@ -530,6 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnCatchallToggle.addEventListener('click', () => {
     catchallSection.style.display = 'block';
     studyDeskSection.style.display = 'none';
+    pauseStudyTimer();
   });
 
   // --------------------------------------------------------------------------
@@ -1116,21 +1136,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fullscreenFocusTimer) {
       fullscreenFocusTimer.classList.add('hidden');
     }
+    // If returning from an in-session break, reset the study sprint timer for the next interval
+    if (activeFocusTaskIndex === -1) {
+      studyTimerSeconds = studyTimerPresetSeconds;
+      isStudyTimerPaused = false;
+      renderStudyTimerDisplay();
+      startStudyTimer();
+    }
   }
 
   // Timer Action Buttons
   if (btnFocusTaskCompleted) {
     btnFocusTaskCompleted.addEventListener('click', () => {
+      const isBreak = (activeFocusTaskIndex === -1);
       if (activeFocusTaskIndex >= 0 && state.laterDrawer[activeFocusTaskIndex]) {
         state.laterDrawer[activeFocusTaskIndex].status = 'completed';
-      } else if (activeFocusTask) {
+      } else if (activeFocusTask && !isBreak) {
         activeFocusTask.status = 'completed';
       }
       const completedTitle = activeFocusTask ? activeFocusTask.title : "Task";
       stopFullScreenTimer();
       updateLaterDrawerBadge();
       saveBreadcrumbCheckpoint();
-      showNotice(`✓ "${completedTitle}" completed! Great job taking care of your brain.`, "info");
+      if (isBreak) {
+        showNotice("✓ Recharge break complete! Returning to study desk feeling refreshed.", "info");
+      } else {
+        showNotice(`✓ "${completedTitle}" completed! Great job taking care of your brain.`, "info");
+      }
     });
   }
 
@@ -1188,6 +1220,138 @@ document.addEventListener('DOMContentLoaded', () => {
       stopFullScreenTimer();
     }
   });
+
+  // --------------------------------------------------------------------------
+  // Minimal Study Focus Sprint Timer & Break Prompt Handling
+  // --------------------------------------------------------------------------
+  function renderStudyTimerDisplay() {
+    if (!studyFocusDigits) return;
+    const m = Math.floor(studyTimerSeconds / 60);
+    const s = studyTimerSeconds % 60;
+    studyFocusDigits.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+    if (studyFocusDot) {
+      if (isStudyTimerPaused) {
+        studyFocusDot.classList.add('paused');
+      } else {
+        studyFocusDot.classList.remove('paused');
+      }
+    }
+
+    if (btnStudyTimerToggle) {
+      btnStudyTimerToggle.textContent = isStudyTimerPaused ? "▶" : "⏸";
+      btnStudyTimerToggle.title = isStudyTimerPaused ? "Resume Study Sprint" : "Pause Study Sprint";
+    }
+  }
+
+  function startStudyTimer() {
+    if (studyTimerInterval) clearInterval(studyTimerInterval);
+    renderStudyTimerDisplay();
+    studyTimerInterval = setInterval(() => {
+      if (!isStudyTimerPaused && studyDeskSection && studyDeskSection.style.display !== 'none') {
+        studyTimerSeconds--;
+        if (studyTimerSeconds <= 0) {
+          studyTimerSeconds = 0;
+          renderStudyTimerDisplay();
+          onStudySprintFinished();
+        } else {
+          renderStudyTimerDisplay();
+        }
+      }
+    }, 1000);
+  }
+
+  function pauseStudyTimer() {
+    isStudyTimerPaused = true;
+    renderStudyTimerDisplay();
+  }
+
+  function resumeStudyTimer() {
+    isStudyTimerPaused = false;
+    renderStudyTimerDisplay();
+  }
+
+  function onStudySprintFinished() {
+    pauseStudyTimer();
+    if (modalBreakPrompt) {
+      modalBreakPrompt.classList.remove('hidden');
+    }
+    showNotice("☕ Focus sprint complete! Time to pick a 1–5 min recharge break.", "info");
+  }
+
+  // Toggle study timer
+  if (btnStudyTimerToggle) {
+    btnStudyTimerToggle.addEventListener('click', () => {
+      isStudyTimerPaused = !isStudyTimerPaused;
+      renderStudyTimerDisplay();
+    });
+  }
+
+  // Change focus sprint preset (10m, 15m, 20m, 25m, 30m, 45m)
+  if (studyFocusPresetSelect) {
+    studyFocusPresetSelect.addEventListener('change', (e) => {
+      const mins = parseInt(e.target.value, 10) || 25;
+      studyTimerPresetSeconds = mins * 60;
+      studyTimerSeconds = studyTimerPresetSeconds;
+      renderStudyTimerDisplay();
+      showNotice(`Study sprint set to ${mins} minutes.`, "info");
+    });
+  }
+
+  // Break choice click (1 – 5 mins)
+  document.querySelectorAll('.break-choice-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const mins = parseInt(card.getAttribute('data-minutes'), 10) || 3;
+      if (modalBreakPrompt) modalBreakPrompt.classList.add('hidden');
+
+      const breakActionGuide = {
+        1: "Close your eyes, breathe in for 4 seconds, hold, and exhale slowly.",
+        2: "Drink a tall glass of cold water and roll your shoulders back.",
+        3: "Stand up from desk, look out the window at something far away, and stretch.",
+        4: "Take a gentle walk around your room, shake out your hands, and loosen your neck.",
+        5: "Step completely away from your study desk, stretch your legs, and let your mind wander."
+      };
+
+      openFullScreenTimer({
+        id: `break_${Date.now()}`,
+        title: `☕ ${mins}-Minute Brain Recharge & Dopamine Reset`,
+        category: "Recharge",
+        suggested_window: "In-Session Rest",
+        starter_action: breakActionGuide[mins] || "Hydrate, breathe, and stretch.",
+        agent_reasoning: "Cognitive science shows 1-5 min diffuse-mode breaks let your brain synthesize newly learned concepts.",
+        estimated_minutes: mins
+      }, -1);
+    });
+  });
+
+  // Skip break button
+  if (btnSkipBreak) {
+    btnSkipBreak.addEventListener('click', () => {
+      if (modalBreakPrompt) modalBreakPrompt.classList.add('hidden');
+      studyTimerSeconds = studyTimerPresetSeconds;
+      isStudyTimerPaused = false;
+      renderStudyTimerDisplay();
+      showNotice("Study sprint restarted. Keep up the great work!", "info");
+    });
+  }
+
+  // Extend study (+5 min)
+  if (btnExtendStudy) {
+    btnExtendStudy.addEventListener('click', () => {
+      if (modalBreakPrompt) modalBreakPrompt.classList.add('hidden');
+      studyTimerSeconds += 300;
+      isStudyTimerPaused = false;
+      renderStudyTimerDisplay();
+      showNotice("+5 minutes added to study sprint. Flow state active!", "info");
+    });
+  }
+
+  // Close break prompt
+  if (btnCloseBreakPrompt) {
+    btnCloseBreakPrompt.addEventListener('click', () => {
+      if (modalBreakPrompt) modalBreakPrompt.classList.add('hidden');
+    });
+  }
 
   // Agent Smart Triage Handler
   if (btnAgentTriageDrawer) {

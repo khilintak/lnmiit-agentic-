@@ -1520,3 +1520,145 @@ button:disabled {
   }
 }
 
+/* ==========================================================================
+   Minimalist Study Focus Sprint Timer Pill (Desk Ribbon)
+   ========================================================================== */
+.study-focus-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-full);
+  padding: 3px 8px 3px 10px;
+  height: 28px;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.study-focus-pill:hover {
+  border-color: var(--border-focus);
+}
+
+.study-focus-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent-sage);
+  box-shadow: 0 0 6px rgba(47, 89, 68, 0.4);
+  animation: pulse-dot 2s infinite ease-in-out;
+  transition: background-color var(--transition-fast);
+}
+
+.study-focus-dot.paused {
+  background-color: var(--text-muted);
+  box-shadow: none;
+  animation: none;
+}
+
+.study-focus-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-ink);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  opacity: 0.85;
+  transition: opacity var(--transition-fast);
+}
+
+.study-focus-toggle-btn:hover {
+  opacity: 1;
+}
+
+.study-focus-digits {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-ink);
+  letter-spacing: -0.3px;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+}
+
+.study-focus-preset-select {
+  background: transparent;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  outline: none;
+  padding-left: 2px;
+}
+
+.study-focus-preset-select:hover {
+  color: var(--text-ink);
+}
+
+/* ==========================================================================
+   Break Time Choice Cards (1 – 5 mins)
+   ========================================================================== */
+.break-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.break-choice-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 10px 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.break-choice-card:hover {
+  border-color: var(--accent-terracotta);
+  transform: translateY(-1.5px);
+  box-shadow: var(--shadow-subtle);
+  background-color: var(--accent-terracotta-soft);
+}
+
+.break-choice-card.featured {
+  border-color: var(--accent-sage);
+  background-color: var(--accent-sage-soft);
+}
+
+.break-choice-card.featured:hover {
+  background-color: rgba(47, 89, 68, 0.16);
+  border-color: var(--accent-sage);
+}
+
+.break-choice-minutes {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-ink);
+}
+
+.break-choice-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+@media (max-width: 600px) {
+  .break-choice-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
